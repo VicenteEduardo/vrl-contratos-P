@@ -1206,10 +1206,11 @@ function renderTermPages(d){
       <li>Acompanhamento remoto para configuração e parametrização inicial do sistema</li>
     </ul>
     <p style="text-align:justify;">O suporte será prestado em horário comercial (das 08h00 às 17h00, de segunda a sexta-feira) e incluirá assistência na configuração inicial, esclarecimento de dúvidas e resolução de questões técnicas relacionadas com o funcionamento do sistema.</p>
+    <p style="text-align:justify;">A <strong>FORNECEDORA</strong> compromete-se a disponibilizar um técnico para a prestação de formação aos utilizadores da CANDIDATA, abrangendo a funcionalidade e utilização do sistema. A formação poderá ser realizada de forma <strong>presencial</strong> ou <strong>online</strong>, conforme acordado entre as partes. O horário e a agenda da formação serão definidos de comum acordo entre a FORNECEDORA e a CANDIDATA, em função da disponibilidade de ambas as partes.</p>
 
     <h3>Cláusula 6 — Obrigações da CANDIDATA</h3>
     <ol>
-      <li>Disponibilizar os recursos técnicos mínimos necessários ao funcionamento do sistema (acesso à internet, equipamentos informáticos compatíveis).</li>
+      <li>Disponibilizar os recursos técnicos mínimos necessários ao funcionamento do sistema, incluindo computadores portáteis ou desktop, acesso à internet e demais equipamentos informáticos compatíveis.</li>
       <li>Nomear um responsável pelo acompanhamento da demonstração e pela interlocução com a FORNECEDORA.</li>
       <li>Utilizar o sistema exclusivamente para fins de avaliação institucional, não podendo comercializar, ceder ou disponibilizar o acesso a terceiros.</li>
       <li>Não reproduzir, modificar, realizar engenharia reversa ou extrair dados do sistema para fins alheios à avaliação.</li>
@@ -1760,8 +1761,9 @@ function buildTermDOCX(d,h){
     bullet(`Correio electrónico: ${d.email||'____________________'}`),
     bullet('Acompanhamento remoto para configuração e parametrização inicial do sistema'),
     body('O suporte será prestado em horário comercial (das 08h00 às 17h00, de segunda a sexta-feira) e incluirá assistência na configuração inicial, esclarecimento de dúvidas e resolução de questões técnicas relacionadas com o funcionamento do sistema.'),
+    body('A FORNECEDORA compromete-se a disponibilizar um técnico para a prestação de formação aos utilizadores da CANDIDATA, abrangendo a funcionalidade e utilização do sistema. A formação poderá ser realizada de forma presencial ou online, conforme acordado entre as partes. O horário e a agenda da formação serão definidos de comum acordo entre a FORNECEDORA e a CANDIDATA, em função da disponibilidade de ambas as partes.'),
     heading('Cláusula 6 — Obrigações da CANDIDATA'),
-    bullet('Disponibilizar os recursos técnicos mínimos necessários ao funcionamento do sistema (acesso à internet, equipamentos informáticos compatíveis).'),
+    bullet('Disponibilizar os recursos técnicos mínimos necessários ao funcionamento do sistema, incluindo computadores portáteis ou desktop, acesso à internet e demais equipamentos informáticos compatíveis.'),
     bullet('Nomear um responsável pelo acompanhamento da demonstração e pela interlocução com a FORNECEDORA.'),
     bullet('Utilizar o sistema exclusivamente para fins de avaliação institucional, não podendo comercializar, ceder ou disponibilizar o acesso a terceiros.'),
     bullet('Não reproduzir, modificar, realizar engenharia reversa ou extrair dados do sistema para fins alheios à avaliação.'),
