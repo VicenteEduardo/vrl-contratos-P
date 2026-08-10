@@ -465,7 +465,7 @@
             <div class="col-md-6"><label class="form-label">Forma de Pagamento</label><select id="f_pagamento" class="form-select"><option value="Mensal">Mensal</option><option value="Trimestral" selected>Trimestral</option><option value="Anual">Anual</option></select></div>
             <div class="col-md-6"><label class="form-label">Multa por Atraso (%)</label><input id="f_multa" class="form-control" value="7"/></div>
             <div class="col-md-6"><label class="form-label">Custo de Exportação de Dados (% da licença)</label><input id="f_taxaExport" class="form-control" value="15"/></div>
-            <div class="col-md-6"><label class="form-label">Multa de Rescisão Antecipada (% do último pacote)</label><input id="f_multaRescisao" class="form-control" value="100"/></div>
+            <div class="col-md-6"><label class="form-label">Multa de Rescisão Antecipada (% do último pacote)</label><input id="f_multaRescisao" class="form-control" value="15"/></div>
           </div>
           <div class="section-label">Datas</div>
           <div class="row g-3">
@@ -475,7 +475,7 @@
           </div>
           <div class="section-label">Prazos</div>
           <div class="row g-3">
-            <div class="col-md-6"><label class="form-label">Prazo de Implementação (dias úteis)</label><input id="f_prazo" class="form-control" value="3"/></div>
+            <div class="col-md-6"><label class="form-label">Prazo de Implementação (dias úteis)</label><input id="f_prazo" class="form-control" value="7"/></div>
             <div class="col-md-6"><label class="form-label">Período de Suporte (meses)</label><input id="f_suporte" class="form-control" value="12"/></div>
           </div>
         </div>
@@ -922,7 +922,7 @@ function selectType(type){
 function generateContract(){
   _lastDocType='contract';
   if(currentContractType==='client'){
-    contractData={type:'client',clientName:getV('f_clientName'),clientNIF:getV('f_clientNIF'),clientSede:getV('f_clientSede'),clientRep:getV('f_clientRep'),clientCargo:getV('f_clientCargo'),valorSistema:getV('f_valorSistema'),valorManut:getV('f_valorManut'),pagamento:getV('f_pagamento'),multa:getV('f_multa'),taxaExport:getV('f_taxaExport')||'15',multaRescisao:getV('f_multaRescisao')||'100',dia:getV('f_dia'),mes:getV('f_mes'),ano:getV('f_ano'),prazo:getV('f_prazo'),suporte:getV('f_suporte')};
+    contractData={type:'client',clientName:getV('f_clientName'),clientNIF:getV('f_clientNIF'),clientSede:getV('f_clientSede'),clientRep:getV('f_clientRep'),clientCargo:getV('f_clientCargo'),valorSistema:getV('f_valorSistema'),valorManut:getV('f_valorManut'),pagamento:getV('f_pagamento'),multa:getV('f_multa'),taxaExport:getV('f_taxaExport')||'15',multaRescisao:getV('f_multaRescisao')||'15',dia:getV('f_dia'),mes:getV('f_mes'),ano:getV('f_ano'),prazo:getV('f_prazo'),suporte:getV('f_suporte')};
   } else {
     contractData={type:'partner',partnerType:getV('f_partnerType')};
   }
@@ -1663,13 +1663,11 @@ document.addEventListener('DOMContentLoaded',()=>{
     if(e.key==='Enter'){e.preventDefault();confirmExport();}
   });
   var hoje=new Date(),meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  ['t_dia','t_mes','t_ano'].forEach(function(id){
-    var el=document.getElementById(id);
-    if(el&&!el.value){
-      if(id==='t_dia') el.value=String(hoje.getDate()).padStart(2,'0');
-      else if(id==='t_mes') el.value=meses[hoje.getMonth()];
-      else el.value=String(hoje.getFullYear());
-    }
+  [['t_dia','t_mes','t_ano'],['f_dia','f_mes','f_ano'],['l_dia','l_mes','l_ano'],['p_dia','p_mes','p_ano'],['pp_dia','pp_mes','pp_ano']].forEach(function(ids){
+    var diaEl=document.getElementById(ids[0]),mesEl=document.getElementById(ids[1]),anoEl=document.getElementById(ids[2]);
+    if(diaEl) diaEl.value=String(hoje.getDate()).padStart(2,'0');
+    if(mesEl) mesEl.value=meses[hoje.getMonth()];
+    if(anoEl) anoEl.value=String(hoje.getFullYear());
   });
 
 });
