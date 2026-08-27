@@ -222,6 +222,11 @@
   .text-editor-toolbar .te-btn { padding:6px 14px; border-radius:8px; border:1.5px solid #e2e2e2; background:#fff; font-size:12px; font-weight:600; color:#555; cursor:pointer; transition:all .15s; display:inline-flex; align-items:center; gap:5px; }
   .text-editor-toolbar .te-btn:hover { border-color:var(--orange); color:var(--orange); background:rgba(232,99,26,.05); }
   .text-editor-hint { font-size:11px; color:#888; margin-bottom:8px; line-height:1.5; }
+  .side-drawer .modal-content { border-radius:0; }
+  #textEditorModal.modal { pointer-events:none; background:transparent; }
+  #textEditorModal .modal-dialog.side-drawer { margin:0 0 0 auto; height:100vh; position:fixed; right:0; top:0; z-index:1055; pointer-events:auto; background:transparent; }
+  .preview-page[contenteditable="true"], .preview-page .page-body[contenteditable="true"] { outline:2px dashed var(--orange); outline-offset:4px; box-shadow:0 0 0 6px rgba(232,99,26,.06); }
+  .preview-page .page-body[contenteditable="true"]:focus { outline-color:#1a8f4e; }
 </style>
 </head>
 <body>
@@ -773,31 +778,35 @@
 </div>
 
 <!-- ─── TEXT EDITOR MODAL ─── -->
-<div class="modal fade" id="textEditorModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered modal-lg" style="max-width:820px;">
-    <div class="modal-content" style="border-radius:20px;overflow:hidden;border:none;">
-      <div class="modal-header" style="background:linear-gradient(135deg,var(--orange),var(--orange-dark));color:white;padding:20px 28px;border:none;">
+<div class="modal fade" id="textEditorModal" tabindex="-1" data-bs-backdrop="false">
+  <div class="modal-dialog modal-dialog-scrollable side-drawer" style="max-width:300px;margin:0 0 0 auto;height:100vh;position:fixed;right:0;top:0;z-index:1055;"> 
+    <div class="modal-content" style="border-radius:0;border:none;height:100%;box-shadow:-8px 0 30px rgba(0,0,0,.18);">
+      <div class="modal-header" style="background:linear-gradient(135deg,var(--orange),var(--orange-dark));color:white;padding:20px 22px;border:none;">
         <div>
-          <div class="modal-title" style="font-weight:800;font-size:1.1rem;">Editar Texto do Documento</div>
-          <div style="font-size:.75rem;opacity:.75;margin-top:2px;">Altere o conteúdo directamente — cláusulas, valores, datas, etc.</div>
+          <div class="modal-title" style="font-weight:800;font-size:1.05rem;">Editar Texto</div>
+          <div style="font-size:.72rem;opacity:.8;margin-top:2px;">Clique no documento e edite directamente. A formatação e as assinaturas são mantidas.</div>
         </div>
         <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter:invert(1) brightness(2);"></button>
       </div>
-      <div class="modal-body" style="padding:24px 28px;background:#fafafa;">
-        <div class="text-editor-hint">
-          Edite o texto abaixo. Cada página do documento está separada por <code>─── Página X ───</code>.
-          Alterações são aplicadas ao documento quando clica em "Aplicar Alterações".
+      <div class="modal-body" style="padding:20px 22px;background:#fafafa;">
+        <div class="text-editor-hint">Formatação rápida (selecione o texto primeiro):</div>
+        <div class="text-editor-toolbar">
+          <button type="button" class="te-btn" onmousedown="event.preventDefault();" onclick="teFormat('bold')"><b>B</b></button>
+          <button type="button" class="te-btn" onmousedown="event.preventDefault();" onclick="teFormat('italic')"><i>I</i></button>
+          <button type="button" class="te-btn" onmousedown="event.preventDefault();" onclick="teFormat('underline')"><u>U</u></button>
+          <button type="button" class="te-btn" onmousedown="event.preventDefault();" onclick="teFormat('insertUnorderedList')">•</button>
+          <button type="button" class="te-btn" onmousedown="event.preventDefault();" onclick="teFormat('insertOrderedList')">1.</button>
         </div>
-        <textarea class="text-editor-area" id="textEditorContent" placeholder="O conteúdo do documento aparecerá aqui..."></textarea>
+        <hr style="border-top:1px solid #eee;margin:18px 0;">
+        <div style="font-size:12px;color:#666;line-height:1.6;">
+          <p>Edite directamente sobre o documento ao lado. Pode alterar valores, datas, cláusulas e nomes sem perder a formatação.</p>
+          <p>Use <b>Negrito (B)</b> para destacar cláusulas depois de selecionar o texto.</p>
+        </div>
       </div>
-      <div class="modal-footer" style="background:#fafafa;border-top:1px solid #eee;padding:16px 28px;display:flex;gap:10px;justify-content:space-between;">
-        <div>
-          <button class="btn btn-outline-secondary" onclick="resetTextEdit()" title="Reverter para o texto original gerado">↩ Reverter Original</button>
-        </div>
-        <div style="display:flex;gap:10px;">
-          <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button class="btn btn-orange" onclick="applyTextEdit()">✓ Aplicar Alterações</button>
-        </div>
+      <div class="modal-footer" style="background:#fafafa;border-top:1px solid #eee;padding:16px 22px;display:flex;flex-direction:column;gap:8px;">
+        <button class="btn btn-orange w-100" onclick="applyTextEdit()">✓ Concluir Edição</button>
+        <button class="btn btn-outline-secondary w-100" onclick="resetTextEdit()" title="Reverter para o texto original gerado">↩ Reverter Original</button>
+        <button class="btn btn-outline-secondary w-100" data-bs-dismiss="modal">Cancelar</button>
       </div>
     </div>
   </div>
@@ -2092,41 +2101,55 @@ crmLoad();
 // ══════════════════════════════════════════════
 
 let _originalPagesHTML = [];
+let _editSavedRange = null;
+
+document.addEventListener('selectionchange', function(){
+  try{
+    const sel = window.getSelection();
+    if(!sel || sel.rangeCount === 0) return;
+    const node = sel.anchorNode;
+    if(node && node.parentElement && node.parentElement.closest('.preview-page [contenteditable="true"]')){
+      _editSavedRange = sel.getRangeAt(0).cloneRange();
+    }
+  }catch(e){}
+});
+
+function teFormat(cmd){
+  try{
+    if(_editSavedRange){
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(_editSavedRange.cloneRange());
+    }
+    document.execCommand(cmd, false, null);
+  }catch(e){}
+}
 
 function openTextEditor(){
   const pages = document.querySelectorAll('.preview-page');
   if(!pages.length){ alert('Gere o documento primeiro antes de editar o texto.'); return; }
   _originalPagesHTML = [];
-  const sections = [];
-  pages.forEach(function(pg, i){
+  pages.forEach(function(pg){
     _originalPagesHTML.push(pg.innerHTML);
     const body = pg.querySelector('.page-body');
-    const txt = body ? body.innerText.trim() : pg.innerText.trim();
-    sections.push('─── Página ' + (i + 1) + ' ───\n' + txt);
+    if(body){
+      body.setAttribute('contenteditable', 'true');
+    } else {
+      pg.setAttribute('contenteditable', 'true');
+    }
   });
-  document.getElementById('textEditorContent').value = sections.join('\n\n');
   bootstrap.Modal.getOrCreateInstance(document.getElementById('textEditorModal')).show();
-  setTimeout(function(){ document.getElementById('textEditorContent').focus(); }, 350);
+  setTimeout(function(){
+    const pages2 = document.querySelectorAll('.preview-page');
+    const editable = pages2[0].querySelector('.page-body') || pages2[0];
+    if(editable){ editable.focus(); }
+  }, 350);
 }
 
 function applyTextEdit(){
-  const raw = document.getElementById('textEditorContent').value;
-  const parts = raw.split(/───\s*Página\s+\d+\s*───/).filter(function(s){ return s.trim(); });
   const pages = document.querySelectorAll('.preview-page');
-  if(!parts.length || !pages.length){ alert('Nenhum conteúdo para aplicar.'); return; }
-  parts.forEach(function(txt, i){
-    if(i >= pages.length) return;
-    const trimmed = txt.trim();
-    if(!trimmed) return;
-    const body = pages[i].querySelector('.page-body');
-    if(body){
-      body.innerHTML = '';
-      const pre = document.createElement('pre');
-      pre.style.cssText = 'margin:0;white-space:pre-wrap;word-wrap:break-word;font-family:inherit;font-size:inherit;color:inherit;line-height:inherit;';
-      pre.textContent = trimmed;
-      body.appendChild(pre);
-    }
-  });
+  pages.forEach(function(pg){ pg.removeAttribute('contenteditable'); });
+  _originalPagesHTML = [];
   bootstrap.Modal.getInstance(document.getElementById('textEditorModal')).hide();
 }
 
@@ -2147,6 +2170,10 @@ function resetTextEdit(){
   _originalPagesHTML = [];
   bootstrap.Modal.getInstance(document.getElementById('textEditorModal')).hide();
 }
+
+document.getElementById('textEditorModal').addEventListener('hidden.bs.modal', function(){
+  document.querySelectorAll('.preview-page').forEach(function(pg){ pg.removeAttribute('contenteditable'); });
+});
 
 // ao abrir o modal do termo, pré-preencher com o último guardado
 document.getElementById('termModal').addEventListener('show.bs.modal', function(){
