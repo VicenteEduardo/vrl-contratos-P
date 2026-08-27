@@ -1754,14 +1754,22 @@ async function doExportPDF(fname){
   btn.disabled=true;
   try{
     if(!pages.length){alert('Nenhuma página para exportar. Gere o documento primeiro.');return;}
-    
+
+    const editing=document.querySelector('.preview-page[contenteditable="true"], .preview-page [contenteditable="true"]');
+    if(editing){
+      document.querySelectorAll('.preview-page').forEach(function(pg){
+        pg.querySelectorAll('[contenteditable="true"]').forEach(function(el){ el.removeAttribute('contenteditable'); });
+      });
+    }
+    await new Promise(function(res){ setTimeout(res,50); });
 
     const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
     for(let i=0;i<pages.length;i++){
       if(i>0) pdf.addPage();
-      const canvas=await html2canvas(pages[i],{useCORS:true,scale:1.2,backgroundColor:'#ffffff',width:794,windowWidth:1200,logging:false});
-      const imgData=canvas.toDataURL('image/jpeg',0.92);
-      pdf.addImage(imgData,'JPEG',0,0,210,297);
+      await document.fonts ? document.fonts.ready : Promise.resolve();
+      const canvas=await html2canvas(pages[i],{useCORS:true,scale:2,backgroundColor:'#ffffff',width:794,windowWidth:1200,logging:false});
+      const imgData=canvas.toDataURL('image/png');
+      pdf.addImage(imgData,'PNG',0,0,210,297);
     }
     pdf.save(`${fname}.pdf`);
   }catch(e){alert('Erro ao gerar PDF: '+(e.message||e));}
