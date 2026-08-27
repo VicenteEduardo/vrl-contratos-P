@@ -223,10 +223,16 @@
   .text-editor-toolbar .te-btn:hover { border-color:var(--orange); color:var(--orange); background:rgba(232,99,26,.05); }
   .text-editor-hint { font-size:11px; color:#888; margin-bottom:8px; line-height:1.5; }
   .side-drawer .modal-content { border-radius:0; }
-  #textEditorModal.modal { pointer-events:none; background:transparent; }
-  #textEditorModal .modal-dialog.side-drawer { margin:0 0 0 auto; height:100vh; position:fixed; right:0; top:0; z-index:1055; pointer-events:auto; background:transparent; }
-  body.modal-open { overflow:auto; padding-right:0 !important; }
-  body.text-edit-active { overflow:auto !important; }
+  #textEditPanel { display:none; position:fixed; top:0; right:0; width:310px; height:100vh; background:#fafafa; box-shadow:-8px 0 30px rgba(0,0,0,.18); z-index:1060; flex-direction:column; }
+  #textEditPanel.tep-open { display:flex; }
+  #textEditPanel .tep-header { background:linear-gradient(135deg,var(--orange),var(--orange-dark)); color:white; padding:20px 22px; display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+  #textEditPanel .tep-title { font-weight:800; font-size:1.05rem; }
+  #textEditPanel .tep-sub { font-size:.72rem; opacity:.85; margin-top:2px; line-height:1.4; }
+  #textEditPanel .tep-close { background:rgba(255,255,255,.2); border:none; color:white; font-size:22px; line-height:1; width:30px; height:30px; border-radius:8px; cursor:pointer; flex-shrink:0; }
+  #textEditPanel .tep-close:hover { background:rgba(255,255,255,.35); }
+  #textEditPanel .tep-body { padding:20px 22px; overflow-y:auto; flex:1; }
+  #textEditPanel .tep-footer { padding:16px 22px; border-top:1px solid #eee; display:flex; flex-direction:column; gap:8px; background:#fafafa; }
+  body.text-edit-active { overflow:auto !important; padding-right:0 !important; }
   .preview-page[contenteditable="true"], .preview-page .page-body[contenteditable="true"] { outline:2px dashed var(--orange); outline-offset:4px; box-shadow:0 0 0 6px rgba(232,99,26,.06); }
   .preview-page .page-body[contenteditable="true"]:focus { outline-color:#1a8f4e; }
 </style>
@@ -779,38 +785,34 @@
   </div>
 </div>
 
-<!-- ─── TEXT EDITOR MODAL ─── -->
-<div class="modal fade" id="textEditorModal" tabindex="-1" data-bs-backdrop="false" data-bs-scroll="true">
-  <div class="modal-dialog modal-dialog-scrollable side-drawer" style="max-width:300px;margin:0 0 0 auto;height:100vh;position:fixed;right:0;top:0;z-index:1055;"> 
-    <div class="modal-content" style="border-radius:0;border:none;height:100%;box-shadow:-8px 0 30px rgba(0,0,0,.18);">
-      <div class="modal-header" style="background:linear-gradient(135deg,var(--orange),var(--orange-dark));color:white;padding:20px 22px;border:none;">
-        <div>
-          <div class="modal-title" style="font-weight:800;font-size:1.05rem;">Editar Texto</div>
-          <div style="font-size:.72rem;opacity:.8;margin-top:2px;">Clique no documento e edite directamente. A formatação e as assinaturas são mantidas.</div>
-        </div>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter:invert(1) brightness(2);"></button>
-      </div>
-      <div class="modal-body" style="padding:20px 22px;background:#fafafa;">
-        <div class="text-editor-hint">Formatação rápida (selecione o texto primeiro):</div>
-        <div class="text-editor-toolbar">
-          <button type="button" class="te-btn" onmousedown="event.preventDefault();" onclick="teFormat('bold')"><b>B</b></button>
-          <button type="button" class="te-btn" onmousedown="event.preventDefault();" onclick="teFormat('italic')"><i>I</i></button>
-          <button type="button" class="te-btn" onmousedown="event.preventDefault();" onclick="teFormat('underline')"><u>U</u></button>
-          <button type="button" class="te-btn" onmousedown="event.preventDefault();" onclick="teFormat('insertUnorderedList')">•</button>
-          <button type="button" class="te-btn" onmousedown="event.preventDefault();" onclick="teFormat('insertOrderedList')">1.</button>
-        </div>
-        <hr style="border-top:1px solid #eee;margin:18px 0;">
-        <div style="font-size:12px;color:#666;line-height:1.6;">
-          <p>Edite directamente sobre o documento ao lado. Pode alterar valores, datas, cláusulas e nomes sem perder a formatação.</p>
-          <p>Use <b>Negrito (B)</b> para destacar cláusulas depois de selecionar o texto.</p>
-        </div>
-      </div>
-      <div class="modal-footer" style="background:#fafafa;border-top:1px solid #eee;padding:16px 22px;display:flex;flex-direction:column;gap:8px;">
-        <button class="btn btn-orange w-100" onclick="applyTextEdit()">✓ Concluir Edição</button>
-        <button class="btn btn-outline-secondary w-100" onclick="resetTextEdit()" title="Reverter para o texto original gerado">↩ Reverter Original</button>
-        <button class="btn btn-outline-secondary w-100" data-bs-dismiss="modal">Cancelar</button>
-      </div>
+<!-- ─── TEXT EDITOR PANEL ─── -->
+<div id="textEditPanel">
+  <div class="tep-header">
+    <div>
+      <div class="tep-title">Editar Texto</div>
+      <div class="tep-sub">Clique no documento e edite directamente. A formatação e as assinaturas são mantidas.</div>
     </div>
+    <button type="button" class="tep-close" onclick="closeTextEdit()">×</button>
+  </div>
+  <div class="tep-body">
+    <div class="text-editor-hint">Formatação rápida (selecione o texto primeiro):</div>
+    <div class="text-editor-toolbar">
+      <button type="button" class="te-btn" onmousedown="event.preventDefault();" onclick="teFormat('bold')"><b>B</b></button>
+      <button type="button" class="te-btn" onmousedown="event.preventDefault();" onclick="teFormat('italic')"><i>I</i></button>
+      <button type="button" class="te-btn" onmousedown="event.preventDefault();" onclick="teFormat('underline')"><u>U</u></button>
+      <button type="button" class="te-btn" onmousedown="event.preventDefault();" onclick="teFormat('insertUnorderedList')">•</button>
+      <button type="button" class="te-btn" onmousedown="event.preventDefault();" onclick="teFormat('insertOrderedList')">1.</button>
+    </div>
+    <hr style="border-top:1px solid #eee;margin:18px 0;">
+    <div style="font-size:12px;color:#666;line-height:1.6;">
+      <p>Edite directamente sobre o documento ao lado. Pode alterar valores, datas, cláusulas e nomes sem perder a formatação.</p>
+      <p>Use <b>Negrito (B)</b> para destacar cláusulas depois de selecionar o texto.</p>
+    </div>
+  </div>
+  <div class="tep-footer">
+    <button class="btn btn-orange w-100" onclick="applyTextEdit()">✓ Concluir Edição</button>
+    <button class="btn btn-outline-secondary w-100" onclick="resetTextEdit()" title="Reverter para o texto original gerado">↩ Reverter Original</button>
+    <button class="btn btn-outline-secondary w-100" onclick="cancelTextEdit()">Cancelar</button>
   </div>
 </div>
 
@@ -2149,7 +2151,7 @@ function openTextEditor(){
       pg.setAttribute('contenteditable', 'true');
     }
   });
-  bootstrap.Modal.getOrCreateInstance(document.getElementById('textEditorModal')).show();
+  document.getElementById('textEditPanel').classList.add('tep-open');
   document.body.classList.add('text-edit-active');
   setTimeout(function(){
     const pages2 = document.querySelectorAll('.preview-page');
@@ -2158,11 +2160,19 @@ function openTextEditor(){
   }, 350);
 }
 
-function applyTextEdit(){
-  const pages = document.querySelectorAll('.preview-page');
-  pages.forEach(function(pg){ pg.removeAttribute('contenteditable'); });
+function closeTextEdit(){
+  document.getElementById('textEditPanel').classList.remove('tep-open');
+  document.body.classList.remove('text-edit-active');
+  document.querySelectorAll('.preview-page').forEach(function(pg){ pg.removeAttribute('contenteditable'); });
   _originalPagesHTML = [];
-  bootstrap.Modal.getInstance(document.getElementById('textEditorModal')).hide();
+}
+
+function applyTextEdit(){
+  closeTextEdit();
+}
+
+function cancelTextEdit(){
+  closeTextEdit();
 }
 
 function resetTextEdit(){
@@ -2180,19 +2190,7 @@ function resetTextEdit(){
     renderPages();
   }
   _originalPagesHTML = [];
-  bootstrap.Modal.getInstance(document.getElementById('textEditorModal')).hide();
 }
-
-document.getElementById('textEditorModal').addEventListener('hidden.bs.modal', function(){
-  document.body.classList.remove('text-edit-active');
-  document.querySelectorAll('.preview-page').forEach(function(pg){ pg.removeAttribute('contenteditable'); });
-});
-
-document.getElementById('textEditorModal').addEventListener('mousedown', function(e){
-  if(e.target.closest('.te-btn')){
-    e.preventDefault();
-  }
-});
 
 // ao abrir o modal do termo, pré-preencher com o último guardado
 document.getElementById('termModal').addEventListener('show.bs.modal', function(){
