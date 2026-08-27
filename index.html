@@ -225,6 +225,8 @@
   .side-drawer .modal-content { border-radius:0; }
   #textEditorModal.modal { pointer-events:none; background:transparent; }
   #textEditorModal .modal-dialog.side-drawer { margin:0 0 0 auto; height:100vh; position:fixed; right:0; top:0; z-index:1055; pointer-events:auto; background:transparent; }
+  body.modal-open { overflow:auto; padding-right:0 !important; }
+  body.text-edit-active { overflow:auto !important; }
   .preview-page[contenteditable="true"], .preview-page .page-body[contenteditable="true"] { outline:2px dashed var(--orange); outline-offset:4px; box-shadow:0 0 0 6px rgba(232,99,26,.06); }
   .preview-page .page-body[contenteditable="true"]:focus { outline-color:#1a8f4e; }
 </style>
@@ -2122,6 +2124,7 @@ function teFormat(cmd){
       sel.addRange(_editSavedRange.cloneRange());
     }
     document.execCommand(cmd, false, null);
+    _editSavedRange = null;
   }catch(e){}
 }
 
@@ -2139,6 +2142,7 @@ function openTextEditor(){
     }
   });
   bootstrap.Modal.getOrCreateInstance(document.getElementById('textEditorModal')).show();
+  document.body.classList.add('text-edit-active');
   setTimeout(function(){
     const pages2 = document.querySelectorAll('.preview-page');
     const editable = pages2[0].querySelector('.page-body') || pages2[0];
@@ -2172,7 +2176,14 @@ function resetTextEdit(){
 }
 
 document.getElementById('textEditorModal').addEventListener('hidden.bs.modal', function(){
+  document.body.classList.remove('text-edit-active');
   document.querySelectorAll('.preview-page').forEach(function(pg){ pg.removeAttribute('contenteditable'); });
+});
+
+document.getElementById('textEditorModal').addEventListener('mousedown', function(e){
+  if(e.target.closest('.te-btn')){
+    e.preventDefault();
+  }
 });
 
 // ao abrir o modal do termo, pré-preencher com o último guardado
