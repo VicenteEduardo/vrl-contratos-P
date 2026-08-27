@@ -778,7 +778,7 @@
 </div>
 
 <!-- ─── TEXT EDITOR MODAL ─── -->
-<div class="modal fade" id="textEditorModal" tabindex="-1" data-bs-backdrop="false">
+<div class="modal fade" id="textEditorModal" tabindex="-1" data-bs-backdrop="false" data-bs-scroll="true">
   <div class="modal-dialog modal-dialog-scrollable side-drawer" style="max-width:300px;margin:0 0 0 auto;height:100vh;position:fixed;right:0;top:0;z-index:1055;"> 
     <div class="modal-content" style="border-radius:0;border:none;height:100%;box-shadow:-8px 0 30px rgba(0,0,0,.18);">
       <div class="modal-header" style="background:linear-gradient(135deg,var(--orange),var(--orange-dark));color:white;padding:20px 22px;border:none;">
@@ -2108,7 +2108,7 @@ document.addEventListener('selectionchange', function(){
     const sel = window.getSelection();
     if(!sel || sel.rangeCount === 0) return;
     const node = sel.anchorNode;
-    if(node && node.parentElement && node.parentElement.closest('.preview-page [contenteditable="true"]')){
+    if(node && node.parentElement && node.parentElement.closest('.preview-page[contenteditable="true"], .preview-page [contenteditable="true"]')){
       _editSavedRange = sel.getRangeAt(0).cloneRange();
     }
   }catch(e){}
