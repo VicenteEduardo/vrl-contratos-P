@@ -235,6 +235,15 @@
   body.text-edit-active { overflow:auto !important; padding-right:0 !important; }
   .preview-page[contenteditable="true"], .preview-page .page-body[contenteditable="true"] { outline:2px dashed var(--orange); outline-offset:4px; box-shadow:0 0 0 6px rgba(232,99,26,.06); }
   .preview-page .page-body[contenteditable="true"]:focus { outline-color:#1a8f4e; }
+  #historyList { display:flex; flex-direction:column; gap:10px; }
+  .history-item { display:flex; align-items:center; justify-content:space-between; gap:12px; background:#fff; border:1.5px solid #eee; border-radius:12px; padding:12px 14px; transition:border .15s, box-shadow .15s; }
+  .history-item:hover { border-color:var(--orange); box-shadow:0 2px 10px rgba(0,0,0,.06); }
+  .history-item .hi-left { display:flex; align-items:center; gap:12px; min-width:0; }
+  .history-item .hi-badge { display:inline-block; color:#fff; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.5px; padding:4px 10px; border-radius:20px; flex-shrink:0; }
+  .history-item .hi-info { min-width:0; }
+  .history-item .hi-title { font-weight:700; font-size:.88rem; color:#1a1a1a; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .history-item .hi-date { font-size:.72rem; color:#999; margin-top:2px; }
+  .history-item .hi-actions { display:flex; gap:6px; flex-shrink:0; }
 </style>
 </head>
 <body>
@@ -318,6 +327,7 @@
         <button class="btn btn-outline-orange" onclick="exportDOCX()">⬇ Exportar DOCX</button>
         <button class="btn btn-outline-secondary" onclick="editContract()">✎ Editar</button>
         <button class="btn btn-outline-secondary" onclick="openTextEditor()">✎ Editar Texto</button>
+        <button class="btn btn-outline-secondary" onclick="openHistory()">🗂 Histórico</button>
       </div>
     </div>
     <div class="preview-wrapper">
@@ -785,6 +795,27 @@
   </div>
 </div>
 
+<!-- ─── HISTORY MODAL ─── -->
+<div class="modal fade" id="historyModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" style="max-width:680px;">
+    <div class="modal-content" style="border-radius:20px;overflow:hidden;border:none;">
+      <div class="modal-header" style="background:linear-gradient(135deg,#1a3a8f 0%,#1e40af 100%);color:white;padding:20px 26px;border:none;">
+        <div>
+          <div class="modal-title" style="font-weight:800;font-size:1.1rem;">Histórico de Documentos</div>
+          <div style="font-size:.75rem;opacity:.8;margin-top:2px;">Contratos, cartas, termos e propostas gerados — abra para consultar ou editar.</div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter:invert(1) brightness(2);"></button>
+      </div>
+      <div class="modal-body" style="padding:18px 22px;background:#fafafa;">
+        <div id="historyList"></div>
+      </div>
+      <div class="modal-footer" style="background:#fafafa;border-top:1px solid #eee;padding:14px 22px;">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ─── TEXT EDITOR PANEL ─── -->
 <div id="textEditPanel">
   <div class="tep-header">
@@ -978,6 +1009,8 @@ let _lastDocType = 'contract';
 function getV(id){ const el=document.getElementById(id); return el?el.value.trim():''; }
 function getLV(id){ const el=document.getElementById(id); return el?el.value.trim():''; }
 function getPV(id){ const el=document.getElementById(id); return el?el.value.trim():''; }
+function setV(id, v){ const el=document.getElementById(id); if(el) el.value=v||''; }
+function setLV(id, v){ const el=document.getElementById(id); if(el) el.value=v||''; }
 
 function setContractType(type){ currentContractType=type; selectType(type); }
 function selectType(type){
@@ -997,8 +1030,9 @@ function generateContract(){
   } else {
     contractData={type:'partner',partnerType:getV('f_partnerType')};
   }
-  bootstrap.Modal.getInstance(document.getElementById('contractModal')).hide();
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('contractModal')).hide();
   renderPages();
+  addToHistory('contract', contractData);
   document.getElementById('previewTitle').textContent='Pré-visualização do Contrato';
   document.getElementById('previewArea').style.display='block';
   document.getElementById('previewArea').scrollIntoView({behavior:'smooth',block:'start'});
@@ -1116,8 +1150,9 @@ function generateLetter(){
   _lastDocType='letter';
   const letterData={escola:getLV('l_escola')||'[Nome da Instituição]',local:getLV('l_local'),dirigida:getLV('l_dirigida'),dia:getLV('l_dia'),mes:getLV('l_mes'),ano:getLV('l_ano'),intro:getLV('l_intro'),signName:getLV('l_signName'),signCargo:getLV('l_signCargo'),tel:getLV('l_tel'),email:getLV('l_email')};
   contractData = {type:'letter', ...letterData};
-  bootstrap.Modal.getInstance(document.getElementById('letterModal')).hide();
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('letterModal')).hide();
   renderLetterPages(letterData);
+  addToHistory('letter', letterData);
   document.getElementById('previewTitle').textContent='Pré-visualização da Carta';
   document.getElementById('previewArea').style.display='block';
   document.getElementById('previewArea').scrollIntoView({behavior:'smooth',block:'start'});
@@ -1226,8 +1261,9 @@ function generateTerm(){
     email: getV('t_email') || 'geral@vrlidentidade.ao'
   };
   contractData = {type:'term', ...d};
-  bootstrap.Modal.getInstance(document.getElementById('termModal')).hide();
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('termModal')).hide();
   renderTermPages(d);
+  addToHistory('term', d);
   document.getElementById('previewTitle').textContent='Pré-visualização — Termo de Demonstração';
   document.getElementById('previewArea').style.display='block';
   document.getElementById('previewArea').scrollIntoView({behavior:'smooth',block:'start'});
@@ -1374,8 +1410,9 @@ function generateProposal(){
   if(_currentProposalType === 'publico'){
     const d={proposalSubType:'publico',vrlNome:getPV('pp_vrl_nome')||'',vrlCargo:getPV('pp_vrl_cargo')||'',entidade:getPV('pp_entidade'),nif:getPV('pp_nif'),rep:getPV('pp_rep'),cargo:getPV('pp_cargo'),sede:getPV('pp_sede'),tel:getPV('pp_tel'),email:getPV('pp_email'),dia:getPV('pp_dia'),mes:getPV('pp_mes'),ano:getPV('pp_ano'),percentagem:getPV('pp_percentagem')||'20',duracao:getPV('pp_duracao')||'3',validade:getPV('pp_validade')||'30'};
     contractData = {type:'proposal', ...d};
-    bootstrap.Modal.getInstance(document.getElementById('proposalModal')).hide();
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('proposalModal')).hide();
     renderPublicPartnershipPages(d);
+    addToHistory('proposal', d);
     document.getElementById('previewTitle').textContent='Pré-visualização — Parceria com Entidades Públicas';
     document.getElementById('previewArea').style.display='block';
     document.getElementById('previewArea').scrollIntoView({behavior:'smooth',block:'start'});
@@ -1384,8 +1421,9 @@ function generateProposal(){
   const d={proposalSubType:'comercial',vrlNome:getPV('p_vrl_nome')||'',vrlCargo:getPV('p_vrl_cargo')||'',empresa:getPV('p_empresa'),nif:getPV('p_nif'),rep:getPV('p_rep'),cargo:getPV('p_cargo'),sede:getPV('p_sede'),tel:getPV('p_tel'),email:getPV('p_email'),dia:getPV('p_dia'),mes:getPV('p_mes'),ano:getPV('p_ano'),comissaoBase:getPV('p_comissao_base')||'15',comissaoBonus:getPV('p_comissao_bonus')||'30',duracao:getPV('p_duracao')||'2',metaClientes:getPV('p_meta_clientes')||'30',metaMeses:getPV('p_meta_meses')||'5',validade:getPV('p_validade')||'30'};
   // guardar para que o botão "Editar" possa repor os valores
   contractData = {type:'proposal', ...d};
-  bootstrap.Modal.getInstance(document.getElementById('proposalModal')).hide();
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('proposalModal')).hide();
   renderProposalPages(d);
+  addToHistory('proposal', d);
   document.getElementById('previewTitle').textContent='Pré-visualização da Proposta de Representação';
   document.getElementById('previewArea').style.display='block';
   document.getElementById('previewArea').scrollIntoView({behavior:'smooth',block:'start'});
@@ -2107,6 +2145,124 @@ function crmConfirmImport(){
 }
 
 crmLoad();
+
+// ══════════════════════════════════════════════
+// HISTORY — documento guardados
+// ══════════════════════════════════════════════
+
+const HISTORY_STORE = 'vrl_history';
+
+function historyTitle(entry){
+  const d = entry.data||{};
+  switch(entry.tipo){
+    case 'contract': return d.type==='partner' ? 'Contrato de Parceria — '+(d.partnerType==='reseller'?'Reseller':d.partnerType==='referral'?'Referral':'Expert') : 'Contrato de Implementação — '+(d.clientName||'(sem nome)');
+    case 'letter':   return 'Carta de Apresentação — '+(d.escola||'(sem instituição)');
+    case 'term':     return 'Termo de Demonstração — '+(d.instituicao||'(sem instituição)');
+    case 'proposal': return (d.proposalSubType==='publico'?'Proposta Pública — '+(d.entidade||'(sem entidade)'):'Proposta de Representação — '+(d.empresa||'(sem empresa)'));
+    default: return 'Documento';
+  }
+}
+
+function addToHistory(tipo, data){
+  try{
+    if(!data) return;
+    const saved = JSON.parse(localStorage.getItem(HISTORY_STORE)||'[]');
+    const entry = {id: Date.now(), tipo: tipo, ts: new Date().toISOString(), data: data};
+    saved.unshift(entry);
+    if(saved.length > 50) saved.length = 50;
+    localStorage.setItem(HISTORY_STORE, JSON.stringify(saved));
+  }catch(e){}
+}
+
+function loadHistory(){ try{ return JSON.parse(localStorage.getItem(HISTORY_STORE)||'[]'); }catch(e){ return []; } }
+
+function openHistory(){
+  const list = document.getElementById('historyList');
+  list.innerHTML = '';
+  const items = loadHistory();
+  if(!items.length){
+    list.innerHTML = '<div style="text-align:center;color:#999;padding:30px 10px;">Nenhum documento guardado ainda.<br/>Gere um contrato, carta, termo ou proposta e ele aparecerá aqui.</div>';
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('historyModal')).show();
+    return;
+  }
+  const badges = {contract:'Contrato', letter:'Carta', term:'Termo', proposal:'Proposta'};
+  const tipoLabel = {contract:'#E8631A', letter:'#1e40af', term:'#16a34a', proposal:'#7c3aed'};
+  items.forEach(function(it){
+    const t = it.tipo||'';
+    const dt = new Date(it.ts);
+    const fecha = isNaN(dt) ? '' : dt.toLocaleDateString('pt-PT', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    const row = document.createElement('div');
+    row.className = 'history-item';
+    row.innerHTML =
+      '<div class="hi-left">'+
+        '<span class="hi-badge" style="background:'+(tipoLabel[t]||'#888')+';">'+(badges[t]||'Doc')+'</span>'+
+        '<div class="hi-info"><div class="hi-title">'+escapeHtml(historyTitle(it))+'</div>'+
+        '<div class="hi-date">'+fecha+'</div></div>'+
+      '</div>'+
+      '<div class="hi-actions">'+
+        '<button class="btn btn-sm btn-outline-orange" onclick="restoreFromHistory('+it.id+')" title="Abrir e editar">✎ Abrir</button>'+
+        '<button class="btn btn-sm btn-outline-danger" onclick="deleteHistory('+it.id+')" title="Eliminar">🗑</button>'+
+      '</div>';
+    list.appendChild(row);
+  });
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('historyModal')).show();
+}
+
+function escapeHtml(s){
+  return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
+}
+
+function deleteHistory(id){
+  let items = loadHistory();
+  items = items.filter(function(it){ return it.id !== id; });
+  localStorage.setItem(HISTORY_STORE, JSON.stringify(items));
+  openHistory();
+}
+
+function restoreFromHistory(id){
+  const items = loadHistory();
+  const entry = items.find(function(it){ return it.id === id; });
+  if(!entry){ alert('Documento não encontrado.'); return; }
+  const d = entry.data||{};
+  bootstrap.Modal.getInstance(document.getElementById('historyModal')).hide();
+
+  if(entry.tipo === 'letter'){
+    setLV('l_escola',    d.escola);
+    setLV('l_local',     d.local);
+    setLV('l_dirigida',  d.dirigida);
+    setLV('l_dia',       d.dia);
+    setLV('l_mes',       d.mes);
+    setLV('l_ano',       d.ano);
+    setLV('l_intro',     d.intro);
+    setLV('l_signName',  d.signName);
+    setLV('l_signCargo', d.signCargo);
+    setLV('l_tel',       d.tel);
+    setLV('l_email',     d.email);
+    generateLetter();
+  } else if(entry.tipo === 'term'){
+    restoreTermModal(d);
+    try{ atualizarFimTermo(); }catch(e){}
+    generateTerm();
+  } else if(entry.tipo === 'proposal'){
+    restoreProposalModal(d);
+    generateProposal();
+  } else {
+    // contract
+    if(d.type==='partner'){
+      setContractType('partner');
+      document.getElementById('f_partnerType').value = d.partnerType||'reseller';
+      generateContract();
+    } else {
+      setContractType('client');
+      ['f_clientName','f_clientNIF','f_clientSede','f_clientRep','f_clientCargo','f_clientResp',
+       'f_valorSistema','f_valorManut','f_pagamento','f_multa','f_taxaExport','f_multaRescisao',
+       'f_dia','f_mes','f_ano','f_prazo','f_suporte','f_formHoras','f_formSessoes','f_formUsers',
+       'f_slaCritico','f_slaNormal'].forEach(function(id){ setV(id, d[id]); });
+      generateContract();
+    }
+  }
+}
+
 
 // ══════════════════════════════════════════════
 // TEXT EDITOR
