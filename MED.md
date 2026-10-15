@@ -62,13 +62,29 @@ Todas as 5 capas (Cliente, Parceiro, Carta, Termo, Proposta Comercial, Proposta 
 ### 9. Variáveis Globais
 - `IMG_CAPA`, `IMG_INICIO`, `IMG_RODAPE`, `IMG_ASSINATURA` mudaram de `const` para `let`
 
+### 10. Contrato de Cartões (RFID) — novo tipo de contrato
+- Adicionado um 3.º tipo no modal de Contratos: **Implementação / Parceria / Cartões & RFID** (`btnTypeCards`, `#formCards`, `selectType('cards')`)
+- Tabela de itens dinâmica (`#c_itemsBody`): linhas com **Tipo** (Cartão RFID / Eduall Smart / Personalizado), **Descrição**, **Quantidade**, **Preço unitário (Kz)** e **Subtotal**; total calculado automaticamente (`addCardItem`, `removeCardItem`, `recalcCardItems`, `readCardItems`, `loadCardItems`)
+- Botões rápidos “+ Cartão RFID”, “+ Eduall Smart”, “+ Personalizado”
+- **Modalidade** (`#c_modo`): *Com software EDUALL* ou **EDUALL Smart** (instituições que **não** usam o software EDUALL) — altera o objeto, a Cláusula 9 (licença vs. exclusão de licença) e a capa/subtítulo
+- **Pagamento por modalidade** (`atualizarModoCartao`, `cardPaymentSummary`, `atualizarPagamentoCartao`):
+  - **Cartões (com software)** → apenas **Pagamento Único**; o valor dos itens é o valor total
+  - **Eduall Smart** → **Pagamento Único / Anual / Semestral / Mensal / A definir**; o valor dos itens é o **valor anual de referência**, dividido pela periodicidade (Mensal = ÷12, Semestral = ÷2)
+  - **A definir** → gera apenas menção de que as condições ficam em aberto e que nada é exigível no período (sem valor de prestação)
+  - Caixa “Resumo do pagamento” no modal mostra o valor anual e o valor por período
+- Implementado `renderCardsPages(d)` (capa + 15 cláusulas + tabela de itens + bloco de assinaturas) e `cardsItemsTableHTML(d)`
+- Implementado `buildCardsDOCX(d,h)` com a mesma estrutura para exportação DOCX
+- `coverPage()` estendido para o tipo `cards`
+- `getDefaultFilename()`, `historyTitle()`, `editContract()` e `restoreFromHistory()` atualizados para o tipo `cards` (com `restoreCardsModal(d)`)
+- Adicionados botão no hero, card na grelha de documentos e entrada no painel “Documentos EDUALL”
+
 ---
 
 ## Arquitectura
 - A aplicação é um único ficheiro `index.html`
 - Todas as capas são geradas dinamicamente via JavaScript (inline styles)
 - `coverPage(wrap, type)` — função central para capas de Cliente e Parceiro
-- Cada documento tem a sua função de renderização: `renderClientPages`, `renderPartnerPages`, `renderTermPages`, `renderLetterPages`, `renderProposalPages`, `renderPublicPartnershipPages`
+- Cada documento tem a sua função de renderização: `renderClientPages`, `renderPartnerPages`, `renderCardsPages`, `renderTermPages`, `renderLetterPages`, `renderProposalPages`, `renderPublicPartnershipPages`
 - PDF: html2canvas 1.4.1 + jsPDF 2.5.1
 - DOCX: biblioteca `docx` (Packer, Document, Paragraph, TextRun, ImageRun)
 

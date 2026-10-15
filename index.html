@@ -99,6 +99,21 @@
   .contract-type-btn .ct-title { font-size:.85rem; font-weight:700; color:var(--dark); }
   .contract-type-btn .ct-sub { font-size:.72rem; color:var(--gray); margin-top:2px; }
 
+  /* Contrato de Cartões — tabela de itens */
+  .card-items-wrap { border:1.5px solid #ececec; border-radius:12px; overflow:hidden; }
+  .card-item-row { display:grid; grid-template-columns:132px 1fr 62px 110px 96px 32px; gap:8px; align-items:center; padding:8px 10px; border-bottom:1px solid #f1f1f1; background:#fff; }
+  .card-item-row:last-child { border-bottom:none; }
+  .card-item-head { background:#f9fafb !important; font-size:.68rem; font-weight:700; color:#6b7280; text-transform:uppercase; letter-spacing:.5px; }
+  .card-item-row select, .card-item-row input { width:100%; border:1px solid #e2e2e2; border-radius:8px; font-size:.8rem; padding:6px 8px; background:#fafafa; outline:none; }
+  .card-item-row select:focus, .card-item-row input:focus { border-color:var(--orange); background:#fff; }
+  .card-item-sub { font-size:.8rem; font-weight:700; color:#1a1a1a; text-align:right; white-space:nowrap; }
+  .card-item-del { width:30px; height:30px; border-radius:8px; border:1px solid #f0d8cc; background:#fff8f5; color:#e8631a; cursor:pointer; font-size:16px; line-height:1; display:inline-flex; align-items:center; justify-content:center; padding:0; }
+  .card-item-del:hover { background:#ffe9df; }
+  .card-items-foot { display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; padding:10px 12px; background:#fff8f5; border-top:1.5px solid #f0d8cc; }
+  .card-items-foot .lbl { font-size:.72rem; font-weight:700; color:var(--orange); letter-spacing:.5px; }
+  .card-items-foot .total { font-size:1.05rem; font-weight:800; color:var(--orange); }
+  @media (max-width:640px){ .card-item-row { grid-template-columns:1fr 1fr 1fr; } .card-item-head { display:none; } }
+
   #previewArea { display:none; }
   .preview-wrapper { background:#e8e4e0; padding:24px 0; border-radius:16px; overflow-x:auto; -webkit-overflow-scrolling:touch; }
   #pagesWrapper { width:794px; margin:0 auto; transform-origin:top center; }
@@ -264,6 +279,9 @@
           <button class="btn btn-generate-outline" data-bs-toggle="modal" data-bs-target="#contractModal" onclick="setContractType('partner')">
             <ion-icon name="handshake-outline" style="vertical-align:-2px;margin-right:6px;"></ion-icon>Contrato de Parceiro
           </button>
+          <button class="btn btn-generate-outline" data-bs-toggle="modal" data-bs-target="#contractModal" onclick="setContractType('cards')">
+            <ion-icon name="card-outline" style="vertical-align:-2px;margin-right:6px;"></ion-icon>Contrato de Cartões (RFID)
+          </button>
           <button class="btn btn-generate-outline" data-bs-toggle="modal" data-bs-target="#letterModal">
             <ion-icon name="mail-outline" style="vertical-align:-2px;margin-right:6px;"></ion-icon>Carta de Apresentação
           </button>
@@ -289,6 +307,10 @@
             <div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.1);border-radius:10px;padding:10px 14px;">
               <ion-icon name="handshake-outline" style="font-size:1.4rem;color:white;flex-shrink:0;"></ion-icon>
               <div><div style="font-size:.82rem;font-weight:700;color:white;">Contrato de Parceria</div><div style="font-size:.68rem;color:rgba(255,255,255,.55);">Para revendedores e parceiros</div></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.1);border-radius:10px;padding:10px 14px;">
+              <ion-icon name="card-outline" style="font-size:1.4rem;color:white;flex-shrink:0;"></ion-icon>
+              <div><div style="font-size:.82rem;font-weight:700;color:white;">Contrato de Cartões</div><div style="font-size:.68rem;color:rgba(255,255,255,.55);">Cartões RFID · Eduall Smart</div></div>
             </div>
             <div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.1);border-radius:10px;padding:10px 14px;">
               <ion-icon name="mail-outline" style="font-size:1.4rem;color:white;flex-shrink:0;"></ion-icon>
@@ -442,6 +464,13 @@
       </div>
     </div>
     <div class="col-md-4">
+      <div class="feature-card text-center" style="cursor:pointer" data-bs-toggle="modal" data-bs-target="#contractModal" onclick="setContractType('cards')">
+        <div style="margin-bottom:12px;"><ion-icon name="card-outline" style="font-size:2.2rem;color:var(--orange);"></ion-icon></div>
+        <h5>Contrato de Cartões (RFID)</h5>
+        <p>Cartões RFID com preços por item e Eduall Smart para quem não usa o software EDUALL.</p>
+      </div>
+    </div>
+    <div class="col-md-4">
       <div class="feature-card text-center" style="cursor:pointer" data-bs-toggle="modal" data-bs-target="#letterModal">
         <div style="margin-bottom:12px;"><ion-icon name="mail-outline" style="font-size:2.2rem;color:var(--orange);"></ion-icon></div>
         <h5>Carta de Apresentação</h5>
@@ -488,6 +517,11 @@
             <div class="ct-icon"><ion-icon name="handshake-outline"></ion-icon></div>
             <div class="ct-title">Parceria Comercial</div>
             <div class="ct-sub">Para revendedores e parceiros</div>
+          </div>
+          <div class="contract-type-btn" id="btnTypeCards" onclick="selectType('cards')">
+            <div class="ct-icon"><ion-icon name="card-outline"></ion-icon></div>
+            <div class="ct-title">Cartões & RFID</div>
+            <div class="ct-sub">Cartões RFID · Eduall Smart</div>
           </div>
         </div>
         <div id="formClient">
@@ -559,6 +593,74 @@
           <div style="margin-top:20px;background:#fff8f5;border:1.5px solid #f0d8cc;border-radius:12px;padding:16px 20px;">
             <div style="font-size:.78rem;font-weight:700;color:var(--orange);margin-bottom:6px;">ℹ️ Contrato Genérico</div>
             <p style="font-size:.82rem;color:#666;margin:0;line-height:1.6;">Este contrato será gerado com <strong>espaços em branco</strong> para preenchimento manual — nome do parceiro, NIF, sede, representante, cargo, data e valores acordados.</p>
+          </div>
+        </div>
+        <div id="formCards" style="display:none">
+          <div style="margin-top:20px;background:#f0f7ff;border:1.5px solid #bcd9f5;border-radius:12px;padding:14px 18px;margin-bottom:4px;">
+            <div style="font-size:.78rem;font-weight:700;color:#1a5fa8;margin-bottom:5px;">ℹ️ Contrato de Cartões & Identificação RFID</div>
+            <p style="font-size:.82rem;color:#444;margin:0;line-height:1.6;">Fornecimento de <strong>cartões RFID</strong> e solução de identificação/acesso. Escolha a modalidade: <strong>com software EDUALL</strong> ou <strong>EDUALL Smart</strong> (instituições que <strong>não</strong> utilizam o software EDUALL). Adicione os itens com quantidade e preço unitário — o total é calculado automaticamente.</p>
+          </div>
+
+          <div class="section-label">Modalidade</div>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Produto / Modalidade</label>
+              <select id="c_modo" class="form-select" onchange="atualizarModoCartao()">
+                <option value="comSoftware" selected>Com software EDUALL — cartões integrados no sistema</option>
+                <option value="smart">EDUALL Smart — sem software EDUALL (apenas cartões/acesso)</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Texto aplicável</label>
+              <div id="c_modoHint" style="font-size:.78rem;color:#666;background:#fff8f5;border:1px solid #f0d8cc;border-radius:10px;padding:10px 14px;line-height:1.5;">Inclui licença de uso do software EDUALL e respectivo suporte de software.</div>
+            </div>
+          </div>
+
+          <div class="section-label">Dados da Instituição / Cliente</div>
+          <div class="row g-3">
+            <div class="col-md-8"><label class="form-label">Nome da Instituição</label><input id="c_clientName" class="form-control" placeholder="Ex: Complexo Escolar Privado Monte Sol"/></div>
+            <div class="col-md-4"><label class="form-label">NIF</label><input id="c_clientNIF" class="form-control" placeholder="Ex: 5001838091"/></div>
+            <div class="col-md-6"><label class="form-label">Sede / Localidade</label><input id="c_clientSede" class="form-control" placeholder="Ex: Luanda"/></div>
+            <div class="col-md-6"><label class="form-label">Nome do Representante</label><input id="c_clientRep" class="form-control" placeholder="Ex: João Manuel da Silva"/></div>
+            <div class="col-md-6"><label class="form-label">Cargo do Representante</label><input id="c_clientCargo" class="form-control" placeholder="Ex: Director Geral"/></div>
+          </div>
+
+          <div class="section-label">Itens / Cartões</div>
+          <div class="card-items-wrap">
+            <div class="card-item-row card-item-head">
+              <div>Tipo</div><div>Descrição</div><div style="text-align:center;">Qtd</div><div style="text-align:right;">Preço unit. (Kz)</div><div style="text-align:right;">Subtotal</div><div></div>
+            </div>
+            <div id="c_itemsBody"></div>
+            <div class="card-items-foot">
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button type="button" class="btn btn-sm btn-outline-orange" onclick="addCardItem('rfid')">+ Cartão RFID</button>
+                <button type="button" class="btn btn-sm btn-outline-orange" onclick="addCardItem('smart')">+ Eduall Smart</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addCardItem('custom')">+ Personalizado</button>
+              </div>
+              <div style="text-align:right;"><span class="lbl">TOTAL</span> <span class="total" id="c_itemsTotal">Kz 0,00</span></div>
+            </div>
+          </div>
+
+          <div class="section-label">Condições Financeiras e Entrega</div>
+          <div class="row g-3">
+            <div class="col-md-4"><label class="form-label">Forma de Pagamento</label><select id="c_pagamento" class="form-select" onchange="atualizarPagamentoCartao()"><option value="Pagamento Único">Pagamento Único</option></select></div>
+            <div class="col-md-4"><label class="form-label">Multa por Atraso (%)</label><input id="c_multa" class="form-control" value="7"/></div>
+            <div class="col-md-4"><label class="form-label">Garantia dos Cartões (meses)</label><input id="c_garantia" class="form-control" value="12"/></div>
+            <div class="col-12">
+              <div id="c_pagamentoInfo" style="display:none;background:#fff8f5;border:1.5px solid #f0d8cc;border-radius:12px;padding:14px 18px;">
+                <div style="font-size:.78rem;font-weight:700;color:var(--orange);margin-bottom:6px;">ℹ️ RESUMO DO PAGAMENTO</div>
+                <div id="c_pagamentoResumo" style="font-size:.85rem;color:#555;line-height:1.7;">—</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-label">Datas e Prazos</div>
+          <div class="row g-3">
+            <div class="col-md-4"><label class="form-label">Dia da Assinatura</label><input id="c_dia" class="form-control" value="05"/></div>
+            <div class="col-md-4"><label class="form-label">Mês da Assinatura</label><input id="c_mes" class="form-control" value="Abril"/></div>
+            <div class="col-md-4"><label class="form-label">Ano</label><input id="c_ano" class="form-control" value="2025"/></div>
+            <div class="col-md-6"><label class="form-label">Prazo de Entrega (dias úteis)</label><input id="c_prazo" class="form-control" value="15"/></div>
+            <div class="col-md-6"><label class="form-label">Período de Suporte (meses)</label><input id="c_suporte" class="form-control" value="12"/></div>
           </div>
         </div>
       </div>
@@ -1077,10 +1179,160 @@ function selectType(type){
   currentContractType=type;
   document.getElementById('btnTypeClient').classList.toggle('active',type==='client');
   document.getElementById('btnTypePartner').classList.toggle('active',type==='partner');
+  var _bc=document.getElementById('btnTypeCards'); if(_bc) _bc.classList.toggle('active',type==='cards');
   document.getElementById('formClient').style.display=type==='client'?'':'none';
   document.getElementById('formPartner').style.display=type==='partner'?'':'none';
-  document.getElementById('modalTitle').textContent=type==='client'?'Contrato de Implementação':'Contrato de Parceria Comercial';
-  document.getElementById('modalSubtitle').textContent=type==='client'?'Dados do cliente e condições financeiras':'Dados do parceiro e modelo de comissionamento';
+  var _fc=document.getElementById('formCards'); if(_fc) _fc.style.display=type==='cards'?'':'none';
+  document.getElementById('modalTitle').textContent=type==='client'?'Contrato de Implementação':type==='partner'?'Contrato de Parceria Comercial':'Contrato de Cartões & RFID';
+  document.getElementById('modalSubtitle').textContent=type==='client'?'Dados do cliente e condições financeiras':type==='partner'?'Dados do parceiro e modelo de comissionamento':'Cartões RFID, Eduall Smart e itens';
+  if(type==='cards'){ ensureCardItems(); atualizarModoCartao(); }
+}
+
+// ── CONTRATO DE CARTÕES — itens dinâmicos ──
+function ensureCardItems(){
+  var body=document.getElementById('c_itemsBody');
+  if(body && !body.children.length) addCardItem('rfid');
+}
+function cardItemDefaultDesc(type){
+  return type==='rfid'?'Cartão RFID de identificação':type==='smart'?'Módulo EDUALL Smart (sem software EDUALL)':'';
+}
+function addCardItem(preset){
+  var body=document.getElementById('c_itemsBody'); if(!body) return;
+  var type=preset||'custom';
+  var row=document.createElement('div');
+  row.className='card-item-row';
+  row.innerHTML=
+    '<select class="c_itemType" onchange="onCardItemTypeChange(this)">'+
+      '<option value="rfid"'+(type==='rfid'?' selected':'')+'>Cartão RFID</option>'+
+      '<option value="smart"'+(type==='smart'?' selected':'')+'>Eduall Smart</option>'+
+      '<option value="custom"'+(type==='custom'?' selected':'')+'>Personalizado</option>'+
+    '</select>'+
+    '<input class="c_itemDesc" placeholder="Descrição do item" value="'+escapeHtml(cardItemDefaultDesc(type))+'" oninput="recalcCardItems()"/>'+
+    '<input class="c_itemQty" value="1" inputmode="numeric" oninput="recalcCardItems()"/>'+
+    '<input class="c_itemPrice" value="0,00" inputmode="decimal" oninput="recalcCardItems()"/>'+
+    '<div class="card-item-sub">Kz 0,00</div>'+
+    '<button type="button" class="card-item-del" title="Remover" onclick="removeCardItem(this)">&times;</button>';
+  body.appendChild(row);
+  recalcCardItems();
+}
+function onCardItemTypeChange(sel){
+  var row=sel.closest('.card-item-row'); if(!row) return;
+  var descEl=row.querySelector('.c_itemDesc'); if(!descEl) return;
+  var cur=descEl.value.trim();
+  var defaults=['Cartão RFID de identificação','Módulo EDUALL Smart (sem software EDUALL)'];
+  if(!cur || defaults.indexOf(cur)>=0) descEl.value=cardItemDefaultDesc(sel.value);
+  recalcCardItems();
+}
+function removeCardItem(btn){
+  var row=btn.closest('.card-item-row'); if(row) row.remove();
+  var body=document.getElementById('c_itemsBody');
+  if(body && !body.children.length) addCardItem('rfid');
+  recalcCardItems();
+}
+function recalcCardItems(){
+  var body=document.getElementById('c_itemsBody'); if(!body) return 0;
+  var total=0;
+  Array.prototype.forEach.call(body.children,function(row){
+    var qEl=row.querySelector('.c_itemQty'), pEl=row.querySelector('.c_itemPrice');
+    var qty=parseInt(qEl&&qEl.value,10)||0;
+    var price=parseKz(pEl&&pEl.value);
+    var sub=qty*price; total+=sub;
+    var subEl=row.querySelector('.card-item-sub');
+    if(subEl) subEl.textContent='Kz '+fmtKz(sub);
+  });
+  var totEl=document.getElementById('c_itemsTotal');
+  if(totEl) totEl.textContent='Kz '+fmtKz(total);
+  try{ atualizarPagamentoCartao(total); }catch(e){}
+  return total;
+}
+function readCardItems(){
+  var body=document.getElementById('c_itemsBody');
+  var items=[];
+  if(body){ Array.prototype.forEach.call(body.children,function(row){
+    var t=row.querySelector('.c_itemType'), dd=row.querySelector('.c_itemDesc'), q=row.querySelector('.c_itemQty'), p=row.querySelector('.c_itemPrice');
+    var desc=(dd&&dd.value.trim())||'';
+    var qty=parseInt(q&&q.value,10)||0;
+    var price=parseKz(p&&p.value);
+    if(!desc && !qty && !price) return;
+    items.push({tipo:(t&&t.value)||'custom', desc:desc, qty:qty, price:price, sub:qty*price});
+  }); }
+  return items;
+}
+function loadCardItems(items){
+  var body=document.getElementById('c_itemsBody'); if(!body) return;
+  body.innerHTML='';
+  (items&&items.length?items:[]).forEach(function(it){
+    addCardItem(it.tipo||'custom');
+    var row=body.lastElementChild; if(!row) return;
+    row.querySelector('.c_itemType').value=it.tipo||'custom';
+    row.querySelector('.c_itemDesc').value=it.desc||'';
+    row.querySelector('.c_itemQty').value=(it.qty!=null?it.qty:1);
+    row.querySelector('.c_itemPrice').value=fmtKz(it.price||0);
+  });
+  if(!body.children.length) addCardItem('rfid');
+  recalcCardItems();
+}
+function atualizarModoCartao(){
+  var m=document.getElementById('c_modo'); if(!m) return;
+  var h=document.getElementById('c_modoHint');
+  if(h) h.innerHTML = m.value==='smart'
+    ? 'Sem software EDUALL: a licença do sistema EDUALL <strong>não</strong> está incluída. O contrato cobre apenas cartões e a solução de identificação/acesso.'
+    : 'Inclui licença de uso do software EDUALL e respectivo suporte de software.';
+  var sel=document.getElementById('c_pagamento');
+  if(sel){
+    var smart=m.value==='smart';
+    var opts = smart
+      ? [['Pagamento Único','Pagamento Único'],['Anual','Anual'],['Semestral','Semestral'],['Mensal','Mensal'],['A definir','A definir — sem pagamento neste período']]
+      : [['Pagamento Único','Pagamento Único (obrigatório para cartões)']];
+    var cur=sel.value;
+    sel.innerHTML=opts.map(function(o){return '<option value="'+o[0]+'">'+o[1]+'</option>';}).join('');
+    if(opts.some(function(o){return o[0]===cur;})) sel.value=cur;
+  }
+  atualizarPagamentoCartao();
+}
+// Resumo das condições de pagamento conforme a modalidade
+function cardPaymentSummary(modo, pagamento, total){
+  total=Number(total)||0;
+  if(modo!=='smart'){
+    return {label:'Pagamento único', valor:total, texto:'O valor total do presente contrato é de Kz '+fmtKz(total)+', a liquidar em pagamento único.'};
+  }
+  pagamento=pagamento||'Pagamento Único';
+  if(pagamento==='Anual') return {label:'Anual', valor:total, texto:'O valor anual do presente contrato é de Kz '+fmtKz(total)+', a liquidar em pagamentos anuais.'};
+  if(pagamento==='Semestral') return {label:'Semestral', valor:total/2, texto:'O valor anual do presente contrato é de Kz '+fmtKz(total)+', correspondendo a Kz '+fmtKz(total/2)+' por semestre, a liquidar em pagamentos semestrais.'};
+  if(pagamento==='Mensal') return {label:'Mensal', valor:total/12, texto:'O valor anual do presente contrato é de Kz '+fmtKz(total)+', correspondendo a Kz '+fmtKz(total/12)+' por mês, a liquidar em pagamentos mensais (12 prestações).'};
+  if(pagamento==='A definir') return {label:'A definir', valor:0, semPagamento:true, texto:'As condições de pagamento relativas ao presente período ficam em aberto, a acordar por escrito entre as partes, não sendo exigível qualquer pagamento neste período. O valor anual de referência dos itens é de Kz '+fmtKz(total)+'.'};
+  return {label:'Pagamento único', valor:total, texto:'O valor total do presente contrato é de Kz '+fmtKz(total)+', a liquidar em pagamento único.'};
+}
+function atualizarPagamentoCartao(total){
+  var m=document.getElementById('c_modo'), sel=document.getElementById('c_pagamento');
+  var box=document.getElementById('c_pagamentoInfo'), res=document.getElementById('c_pagamentoResumo');
+  if(!m||!sel) return;
+  if(total===undefined){ total=0; readCardItems().forEach(function(it){ total+=(it.sub||0); }); }
+  if(box) box.style.display=(m.value==='smart')?'block':'none';
+  if(!res) return;
+  var s=cardPaymentSummary(m.value, sel.value, total);
+  if(m.value!=='smart'){ res.innerHTML='Pagamento único de <strong>Kz '+fmtKz(total)+'</strong>.'; }
+  else if(s.semPagamento){ res.innerHTML='Pagamento <strong>em aberto</strong> neste período — a acordar. Valor anual de referência: <strong>Kz '+fmtKz(total)+'</strong>.'; }
+  else if(s.label==='Pagamento único'){ res.innerHTML='Pagamento único de <strong>Kz '+fmtKz(total)+'</strong>.'; }
+  else { res.innerHTML='Valor anual: <strong>Kz '+fmtKz(total)+'</strong> &nbsp;·&nbsp; '+s.label+': <strong>Kz '+fmtKz(s.valor)+'</strong> por período.'; }
+}
+function restoreCardsModal(d){
+  setV('c_modo', d.modo||'comSoftware');
+  setV('c_clientName', d.clientName);
+  setV('c_clientNIF', d.clientNIF);
+  setV('c_clientSede', d.clientSede);
+  setV('c_clientRep', d.clientRep);
+  setV('c_clientCargo', d.clientCargo);
+  setV('c_pagamento', d.pagamento||'Pagamento Único');
+  setV('c_multa', d.multa||'7');
+  setV('c_garantia', d.garantia||'12');
+  setV('c_dia', d.dia);
+  setV('c_mes', d.mes);
+  setV('c_ano', d.ano);
+  setV('c_prazo', d.prazo||'15');
+  setV('c_suporte', d.suporte||'12');
+  loadCardItems(d.items||[]);
+  try{ atualizarModoCartao(); }catch(e){}
 }
 
 function generateContract(){
@@ -1088,6 +1340,10 @@ function generateContract(){
   if(currentContractType==='client'){
     const _desc=calcDesconto(getV('f_valorSistema'), getV('f_desconto'));
     contractData={type:'client',clientName:getV('f_clientName'),clientNIF:getV('f_clientNIF'),clientSede:getV('f_clientSede'),clientRep:getV('f_clientRep'),clientCargo:getV('f_clientCargo'),clientResp:getV('f_clientResp'),valorSistema:getV('f_valorSistema'),valorManut:getV('f_valorManut'),desconto:fmtPct(_desc.pct),descontoObs:getV('f_descontoObs'),valorDesconto:_desc.desconto,valorPagar:_desc.liquido,pagamento:getV('f_pagamento'),multa:getV('f_multa'),taxaExport:getV('f_taxaExport')||'15',multaRescisao:getV('f_multaRescisao')||'15',dia:getV('f_dia'),mes:getV('f_mes'),ano:getV('f_ano'),prazo:getV('f_prazo'),suporte:getV('f_suporte'),formHoras:getV('f_formHoras')||'8',formSessoes:getV('f_formSessoes')||'4',formUsers:getV('f_formUsers')||'10',slaCritico:getV('f_slaCritico')||'4',slaNormal:getV('f_slaNormal')||'24'};
+  } else if(currentContractType==='cards'){
+    const items=readCardItems();
+    const total=items.reduce(function(a,i){return a+(i.sub||0);},0);
+    contractData={type:'cards',modo:getV('c_modo')||'comSoftware',clientName:getV('c_clientName'),clientNIF:getV('c_clientNIF'),clientSede:getV('c_clientSede'),clientRep:getV('c_clientRep'),clientCargo:getV('c_clientCargo'),items:items,total:total,pagamento:getV('c_pagamento')||'Pagamento Único',multa:getV('c_multa')||'7',garantia:getV('c_garantia')||'12',dia:getV('c_dia'),mes:getV('c_mes'),ano:getV('c_ano'),prazo:getV('c_prazo')||'15',suporte:getV('c_suporte')||'12'};
   } else {
     contractData={type:'partner',partnerType:getV('f_partnerType')};
   }
@@ -1110,6 +1366,11 @@ function editContract(){
   }
   if(_lastDocType==='term' && contractData && contractData.type==='term'){
     restoreTermModal(contractData);
+  }
+  if(_lastDocType==='contract' && contractData && contractData.type){
+    if(contractData.type==='cards'){ selectType('cards'); restoreCardsModal(contractData); }
+    else if(contractData.type==='partner'){ selectType('partner'); }
+    else if(contractData.type==='client'){ selectType('client'); }
   }
   bootstrap.Modal.getOrCreateInstance(document.getElementById(modalId)).show();
 }
@@ -1137,7 +1398,8 @@ function renderPages(){
   const wrap=document.getElementById('pagesWrapper');
   wrap.innerHTML='';
   if(contractData.type==='client') renderClientPages(wrap);
-  else renderPartnerPages(wrap);
+  else if(contractData.type==='partner') renderPartnerPages(wrap);
+  else if(contractData.type==='cards') renderCardsPages(wrap);
 }
 
 function page(wrap,bodyHTML){
@@ -1154,9 +1416,9 @@ function coverPage(wrap,type){
   const _pt=type==='partner'?contractData.partnerType:null;
   const _tL=_pt?(_pt==='reseller'?'RESELLER':_pt==='referral'?'REFERRAL':'EXPERT'):'';
   const _tD=_pt?(_pt==='reseller'?'Programa de Revenda':_pt==='referral'?'Programa de Referência':'Canal de Distribuição Premium'):'';
-  const _tag=type==='partner'?'PROGRAMA DE PARCEIROS · '+_tL:type==='client'?'CONTRATO DE CLIENTE':'CONTRATO';
-  const _tit=type==='partner'?'Contrato de<br/>Parceria<br/>Comercial':'Contrato de<br/>Implementação<br/>do Sistema';
-  const _sub=type==='partner'?_tD:'EDUALL — Gestão Escolar e Universitária';
+  const _tag=type==='partner'?'PROGRAMA DE PARCEIROS · '+_tL:type==='client'?'CONTRATO DE CLIENTE':type==='cards'?'CONTRATO DE CARTÕES · RFID':'CONTRATO';
+  const _tit=type==='partner'?'Contrato de<br/>Parceria<br/>Comercial':type==='cards'?'Contrato de<br/>Cartões &<br/>Identificação RFID':'Contrato de<br/>Implementação<br/>do Sistema';
+  const _sub=type==='partner'?_tD:type==='cards'?(contractData.modo==='smart'?'EDUALL Smart — sem software EDUALL':'EDUALL — Cartões RFID integrados'):'EDUALL — Gestão Escolar e Universitária';
   coverDiv.innerHTML=`<div style="width:794px;height:1123px;background:#fff;display:flex;flex-direction:column;position:relative;overflow:hidden;box-sizing:border-box;">
     <div style="position:absolute;right:-180px;top:100px;width:500px;height:500px;border-radius:50%;border:2.5px solid rgba(232,99,26,.35);pointer-events:none;"></div>
     <div style="position:absolute;left:-80px;bottom:200px;width:200px;height:200px;border-radius:50%;border:1.5px solid rgba(232,99,26,.25);pointer-events:none;"></div>
@@ -1221,6 +1483,54 @@ function renderPartnerPages(wrap){
 
   page(wrap,`<h3>Cláusula 4 — Obrigações do Parceiro</h3><ol><li>Promover o sistema EDUALL de forma ética e alinhada com os valores da <strong>VRL</strong>.</li><li>Não efetuar promessas sobre o produto sem autorização prévia da <strong>VRL</strong>.</li><li>Manter confidencialidade sobre preços, margens e condições comerciais da <strong>VRL</strong>.</li><li>Reportar mensalmente as atividades comerciais e pipeline de potenciais clientes.</li><li>Não representar produtos concorrentes diretos do EDUALL sem autorização escrita da <strong>VRL</strong>.</li></ol>${cl5}`);
   page(wrap,`<h3>Cláusula 6 — Período de Demonstração ao Cliente Final</h3><p>Cada cliente final pode beneficiar de um período de demonstração gratuita do sistema EDUALL de <strong>15 a 30 dias</strong>, findo o qual deverá formalizar o contrato de licença ou cessar a utilização.</p><h3>Cláusula 7 — Propriedade Intelectual e Uso da Marca</h3><ol><li>O sistema EDUALL e toda a sua propriedade intelectual pertencem exclusivamente à <strong>VRL IDENTIDADE</strong>.</li><li>O <strong>PARCEIRO</strong> fica autorizado a utilizar a marca EDUALL nas suas ações comerciais, respeitando as diretrizes de identidade visual.</li><li>Finda a parceria, o <strong>PARCEIRO</strong> obriga-se a cessar imediatamente o uso de qualquer marca ou material da <strong>VRL</strong>.</li></ol><h3>Cláusula 8 — Confidencialidade</h3><p>Ambas as partes comprometem-se a manter sigilo sobre todas as informações obtidas, durante a vigência e por <strong>2 (dois) anos</strong> após o término.</p><h3>Cláusula 9 — Vigência e Renovação</h3><p>O presente contrato entra em vigor na data da sua assinatura e tem duração de <strong>${blank(80)} meses</strong>, renovando-se automaticamente por iguais períodos, salvo comunicação escrita de não renovação com 30 dias de antecedência.</p><h3>Cláusula 10 — Rescisão</h3><ol><li>Qualquer das partes poderá rescindir com justa causa, mediante notificação escrita com 30 dias de antecedência.</li><li>A rescisão antecipada sem justa causa obriga a parte incumpridora ao pagamento de indemnização a acordar, com base nas comissões médias dos últimos 3 meses.</li><li>Considera-se justa causa: incumprimento grave, violação de confidencialidade, uso indevido da marca ou concorrência desleal.</li></ol><h3>Cláusula 11 — Disposições Finais</h3><ol><li>Este contrato entra em vigor na data da assinatura por ambas as partes.</li><li>Qualquer alteração deverá ser formalizada em adenda escrita e assinada por ambas as partes.</li><li>Fica eleito o foro da comarca de <strong>Luanda</strong> para resolução de eventuais litígios.</li></ol><h3>Cláusula 12 — Aceitação</h3><p>E, por estarem justas e acordadas, as partes assinam o presente contrato em <strong>02 (duas) vias</strong>.</p><p>Luanda, aos ${blank(40)} dias do mês de ${blank(100)} de ${blank(60)}.</p><div class="sign-wrap"><div class="sign-block"><img src="${IMG_ASSINATURA}" style="width:180px;"/><p style="margin:0;font-size:9px;color:#888;">VRL IDENTIDADE, LDA</p></div><div class="sign-block"><div class="sign-line"></div><p><strong>Nome do Parceiro</strong></p><p>Cargo do Parceiro</p><p>Empresa do Parceiro</p></div></div>`);
+}
+
+// ── CARDS / RFID CONTRACT ──
+function cardsItemsTableHTML(d){
+  const items=(d.items||[]);
+  const tipoLabel=function(t){return t==='rfid'?'Cartão RFID':t==='smart'?'Eduall Smart':'Personalizado';};
+  const rows=items.length
+    ? items.map(function(it,i){return '<tr><td style="padding:5px 7px;border-bottom:1px solid #eee;text-align:center;">'+(i+1)+'</td><td style="padding:5px 7px;border-bottom:1px solid #eee;">'+tipoLabel(it.tipo)+'</td><td style="padding:5px 7px;border-bottom:1px solid #eee;">'+(it.desc||'')+'</td><td style="padding:5px 7px;border-bottom:1px solid #eee;text-align:center;">'+it.qty+'</td><td style="padding:5px 7px;border-bottom:1px solid #eee;text-align:right;white-space:nowrap;">Kz '+fmtKz(it.price)+'</td><td style="padding:5px 7px;border-bottom:1px solid #eee;text-align:right;white-space:nowrap;">Kz '+fmtKz(it.sub)+'</td></tr>';}).join('')
+    : '<tr><td colspan="6" style="padding:10px;text-align:center;color:#999;">—</td></tr>';
+  return '<table style="width:100%;border-collapse:collapse;font-size:9.5px;margin:6px 0 4px;"><thead><tr style="background:#f5f5f5;"><th style="padding:6px 7px;text-align:left;border-bottom:1.5px solid #ddd;">#</th><th style="padding:6px 7px;text-align:left;border-bottom:1.5px solid #ddd;">Tipo</th><th style="padding:6px 7px;text-align:left;border-bottom:1.5px solid #ddd;">Descrição</th><th style="padding:6px 7px;text-align:center;border-bottom:1.5px solid #ddd;">Qtd</th><th style="padding:6px 7px;text-align:right;border-bottom:1.5px solid #ddd;">Preço unit.</th><th style="padding:6px 7px;text-align:right;border-bottom:1.5px solid #ddd;">Subtotal</th></tr></thead><tbody>'+rows+'</tbody><tfoot><tr><td colspan="5" style="padding:7px;text-align:right;font-weight:700;border-top:1.5px solid #ddd;">TOTAL A PAGAR</td><td style="padding:7px;text-align:right;font-weight:700;border-top:1.5px solid #ddd;color:#E8631A;white-space:nowrap;">Kz '+fmtKz(d.total||0)+'</td></tr></tfoot></table>';
+}
+
+function renderCardsPages(wrap){
+  const d=contractData;
+  const smart=d.modo==='smart';
+  const pay=cardPaymentSummary(d.modo, d.pagamento, d.total||0);
+  const totalLabel=smart?'ao valor anual de referência de':'ao valor total de';
+  coverPage(wrap,'cards');
+
+  page(wrap,`<h2>Sumário</h2><ul class="toc-list"><li><span>Cláusula 1 — Objeto</span><span>3</span></li><li><span>Cláusula 2 — Especificação dos Itens e Modalidade</span><span>3</span></li><li><span>Cláusula 3 — Condições Financeiras</span><span>3</span></li><li><span>Cláusula 4 — Prazo de Entrega</span><span>4</span></li><li><span>Cláusula 5 — Obrigações da Fornecedora</span><span>4</span></li><li><span>Cláusula 6 — Obrigações da Cliente</span><span>4</span></li><li><span>Cláusula 7 — Garantia</span><span>4</span></li><li><span>Cláusula 8 — Propriedade dos Cartões e Equipamentos</span><span>5</span></li><li><span>Cláusula 9 — Propriedade Intelectual e Licença de Software</span><span>5</span></li><li><span>Cláusula 10 — Tratamento e Titularidade dos Dados</span><span>5</span></li><li><span>Cláusula 11 — Rescisão</span><span>5</span></li><li><span>Cláusula 12 — Cláusula Penal</span><span>6</span></li><li><span>Cláusula 13 — Vigência</span><span>6</span></li><li><span>Cláusula 14 — Disposições Finais</span><span>6</span></li><li><span>Cláusula 15 — Aceitação</span><span>6</span></li></ul>`);
+
+  page(wrap,`<p><strong>Entre as partes:</strong></p><p><strong>VRL IDENTIDADE</strong>, pessoa coletiva com NIF: <strong>5001512323</strong>, com sede em Luanda, Centralidade do Kilamba, doravante designada <strong>FORNECEDORA</strong>;</p><p>e</p><p><strong>${(d.clientName||'').toUpperCase()}</strong>, pessoa coletiva com NIF: <strong>${d.clientNIF}</strong>, com sede em ${d.clientSede}, doravante designada <strong>CLIENTE</strong>.</p><p>As partes celebram o presente <strong>Contrato de Cartões e Identificação RFID${smart?' — EDUALL Smart':''}</strong>, regido pelas cláusulas seguintes:</p>
+  <h3>Cláusula 1 — Objeto</h3><p>O presente contrato tem por objeto ${smart?'o fornecimento de <strong>cartões RFID</strong> e da solução de identificação e controlo de acesso, bem como a disponibilização do módulo <strong>EDUALL Smart</strong>, destinado a instituições que <strong>não utilizam</strong> o software de gestão escolar EDUALL.':'o fornecimento de <strong>cartões RFID</strong> e da solução de identificação e controlo de acesso, <strong>integrados no sistema EDUALL</strong> — Sistema de Gestão Escolar e Universitário —, incluindo a respectiva licença de uso do software, conforme as especificações acordadas entre as partes.'}</p>
+  <h3>Cláusula 2 — Especificação dos Itens e Modalidade</h3><p>A modalidade contratada é <strong>${smart?'EDUALL Smart (sem software EDUALL)':'Com software EDUALL'}</strong>. Os itens fornecidos são os seguintes:</p>${cardsItemsTableHTML(d)}<p>Os valores apresentados são expressos em Kwanzas (Kz) e correspondem ${totalLabel} <strong>Kz ${fmtKz(d.total||0)}</strong>.</p>
+  <h3>Cláusula 3 — Condições Financeiras</h3><ol><li>${pay.texto}</li><li>O não cumprimento dos prazos de pagamento acarretará a suspensão imediata dos serviços e a incidência de multa de <strong>${d.multa}%</strong> sobre o valor em atraso.</li></ol>`);
+
+  page(wrap,`<h3>Cláusula 4 — Prazo de Entrega</h3><p>O prazo de entrega e activação dos cartões será de até <strong>${d.prazo} (${numPorExtenso(d.prazo)}) dias úteis</strong>, contados a partir da data de assinatura do presente contrato e da confirmação do pagamento inicial.</p>
+  <h3>Cláusula 5 — Obrigações da Fornecedora</h3><ol><li>Fornecer, personalizar e activar os cartões RFID nas condições acordadas entre as partes.</li><li>Prestar apoio técnico durante o período de implementação e activação.</li><li>${smart?'Disponibilizar o módulo EDUALL Smart de identificação e controlo de acesso.':'Assegurar a integração dos cartões com o sistema EDUALL.'}</li><li>Garantir a qualidade e o correcto funcionamento dos cartões fornecidos.</li><li>Prestar suporte técnico pelo período de <strong>${d.suporte} (${numPorExtenso(d.suporte)}) meses</strong> após a entrega.</li></ol>
+  <h3>Cláusula 6 — Obrigações da Cliente</h3><ol><li>Fornecer atempadamente os dados e fotografias necessários à personalização dos cartões.</li><li>Disponibilizar os meios técnicos mínimos necessários à leitura e utilização dos cartões.</li><li>Cumprir pontualmente os pagamentos nos prazos e condições estabelecidos na Cláusula 3.</li><li>Utilizar os cartões e a solução exclusivamente para fins institucionais.</li></ol>
+  <h3>Cláusula 7 — Garantia</h3><ol><li>A <strong>FORNECEDORA</strong> garante os cartões fornecidos contra defeitos de fabrico por um período de <strong>${d.garantia} (${numPorExtenso(d.garantia)}) meses</strong> a contar da data de entrega.</li><li>A garantia não cobre danos resultantes de uso indevido, mau manuseamento, perda ou alteração não autorizada dos cartões.</li><li>A substituição de cartões danificados por uso indevido fica sujeita a orçamento à parte.</li></ol>
+  <h3>Cláusula 8 — Propriedade dos Cartões e Equipamentos</h3><ol><li>A propriedade dos cartões fornecidos transfere-se para a <strong>CLIENTE</strong> após o pagamento integral do respectivo valor.</li><li>Leitores, antenas e demais equipamentos que venham a ser fornecidos são regulados em Anexo Técnico próprio, a celebrar entre as partes.</li><li>Em caso de rescisão, os bens já pagos permanecem com a <strong>CLIENTE</strong>; os bens não pagos deverão ser devolvidos à <strong>FORNECEDORA</strong>.</li></ol>`);
+
+  const cl9 = smart
+    ? `<h3>Cláusula 9 — Exclusão da Licença de Software EDUALL</h3><ol><li>Reconhece a <strong>CLIENTE</strong> que <strong>não</strong> adquire, pelo presente contrato, qualquer licença de uso do software de gestão EDUALL. O objecto limita-se aos cartões RFID e ao módulo EDUALL Smart de identificação e controlo de acesso.</li><li>Caso a <strong>CLIENTE</strong> pretenda utilizar o software EDUALL, deverá celebrar contrato de licenciamento autónomo com a <strong>FORNECEDORA</strong>.</li></ol>`
+    : `<h3>Cláusula 9 — Propriedade Intelectual e Licença de Software</h3><ol><li>O sistema EDUALL é de propriedade exclusiva da <strong>FORNECEDORA</strong> e/ou dos seus parceiros tecnológicos.</li><li>A <strong>CLIENTE</strong> adquire o direito de uso não exclusivo, intransferível e limitado do software EDUALL durante a vigência do presente contrato.</li><li>É vedada à <strong>CLIENTE</strong> a reprodução, cópia, modificação, engenharia reversa, venda, cessão ou sublicenciamento do software sem autorização expressa da <strong>FORNECEDORA</strong>.</li></ol>`;
+
+  page(wrap,`${cl9}
+  <h3>Cláusula 10 — Tratamento e Titularidade dos Dados</h3><ol><li>Os dados introduzidos ou associados aos cartões pertencem à <strong>CLIENTE</strong>, na sua qualidade de titular.</li><li>A <strong>FORNECEDORA</strong> tratará exclusivamente os dados estritamente necessários à prestação dos serviços e à personalização dos cartões, em conformidade com a legislação aplicável em matéria de protecção de dados.</li></ol>
+  <h3>Cláusula 11 — Rescisão</h3><p>O contrato poderá ser rescindido por qualquer das partes em caso de incumprimento de obrigação contratual não sanado no prazo de 15 (quinze) dias, ou por acordo escrito entre as partes.</p>
+  <h3>Cláusula 12 — Cláusula Penal</h3><ol><li>O atraso no pagamento das prestações devidas sujeita a <strong>CLIENTE</strong> à multa de <strong>${d.multa}%</strong> sobre o valor em atraso, sem prejuízo da suspensão dos serviços.</li><li>Sobre as quantias em atraso incidem juros de mora de <strong>1% (um por cento) ao mês</strong>.</li></ol>
+  <h3>Cláusula 13 — Vigência</h3><p>O presente contrato entra em vigor na data da sua assinatura, vigorando pelo período de fornecimento, garantia e suporte acordados, renovando-se automaticamente por iguais períodos quanto ao suporte, salvo comunicação escrita de não renovação com, pelo menos, 60 (sessenta) dias de antecedência.</p>
+  <h3>Cláusula 14 — Disposições Finais</h3><ol><li>Quaisquer alterações ou aditamentos ao presente contrato somente serão válidos se formalizados por escrito e assinados por ambas as partes.</li><li>Fica eleito o foro da comarca de <strong>Luanda</strong>, com renúncia expressa a qualquer outro, para dirimir quaisquer litígios decorrentes do presente contrato.</li></ol>
+  <h3>Cláusula 15 — Aceitação</h3><p>E, por estarem justas e acordadas, as partes assinam o presente contrato em <strong>02 (duas) vias de igual teor e forma</strong>.</p>
+  <p style="margin-top:24px;"><strong>Luanda, ${d.dia} de ${d.mes} de ${d.ano}.</strong></p>
+  <div class="sign-wrap">
+    <div class="sign-block"><img src="${IMG_ASSINATURA}" style="width:180px;"/><p style="margin:0;font-size:9px;color:#888;">VRL IDENTIDADE, LDA · FORNECEDORA</p></div>
+    <div class="sign-block"><div class="sign-line"></div><p><strong>${d.clientRep||'[Nome do Representante]'}</strong></p><p>${d.clientCargo||'[Cargo]'}</p><p>${d.clientName||''}</p><p style="font-size:9px;color:#888;">CLIENTE</p></div>
+  </div>`);
 }
 
 // ── LETTER ──
@@ -1801,11 +2111,16 @@ function getDefaultFilename(ext){
   let fname='EDUALL_Documento';
   if(_lastDocType==='contract'){
     const d=contractData;
-    const tipo=d.type==='client'?'Contrato_Implementacao':'Contrato_Parceria';
-    const name=d.type==='client'
-      ? (d.clientName||'').replace(/\s+/g,'_')
-      : (d.partnerType==='reseller'?'Reseller':d.partnerType==='referral'?'Referral':'Expert');
-    fname=`EDUALL_${tipo}_${name}`;
+    if(d.type==='cards'){
+      const name=(d.clientName||'').replace(/\s+/g,'_');
+      fname='EDUALL_Contrato_Cartoes'+(name?'_'+name:'');
+    } else {
+      const tipo=d.type==='client'?'Contrato_Implementacao':'Contrato_Parceria';
+      const name=d.type==='client'
+        ? (d.clientName||'').replace(/\s+/g,'_')
+        : (d.partnerType==='reseller'?'Reseller':d.partnerType==='referral'?'Referral':'Expert');
+      fname=`EDUALL_${tipo}_${name}`;
+    }
   } else if(_lastDocType==='letter'){
     fname='EDUALL_Carta_Apresentacao';
   } else if(_lastDocType==='proposal'){
@@ -1915,6 +2230,7 @@ async function doExportDOCX(fname){
   let children=[];
   if(d.type==='client') children=buildClientDOCX(d,{heading,body,bullet,br,pageHeader,pageFooter,imgCapa,imgInicio,imgRodape,AlignmentType,Paragraph,TextRun,ImageRun,PageBreak});
   else if(d.type==='partner') children=buildPartnerDOCX(d,{heading,body,bullet,br,pageHeader,pageFooter,imgCapa,imgInicio,imgRodape,AlignmentType,Paragraph,TextRun,ImageRun,PageBreak});
+  else if(d.type==='cards') children=buildCardsDOCX(d,{heading,body,bullet,br,pageHeader,pageFooter,imgCapa,imgInicio,imgRodape,AlignmentType,Paragraph,TextRun,ImageRun,PageBreak});
   else if(d.type==='term') children=buildTermDOCX(d,{heading,body,bullet,br,pageHeader,pageFooter,imgCapa,imgInicio,imgRodape,AlignmentType,Paragraph,TextRun,ImageRun,PageBreak,BorderStyle});
   const doc=new Document({numbering:{config:[{reference:'default',levels:[{level:0,format:'decimal',text:'%1.',alignment:AlignmentType.START,style:{paragraph:{indent:{left:720,hanging:360}}}}]}]},sections:[{properties:{},children}]});
   const blob=await Packer.toBlob(doc);
@@ -2003,6 +2319,98 @@ function buildTermDOCX(d,h){
     new Paragraph({children:[new TextRun({text:'_______________________          _______________________',font:'Montserrat',size:20})],alignment:AlignmentType.CENTER,spacing:{before:200,after:80}}),
     new Paragraph({children:[new TextRun({text:'VRL IDENTIDADE, LDA',bold:true,font:'Montserrat',size:20}),new TextRun({text:'          ',font:'Montserrat',size:20}),new TextRun({text:d.rep||'[Nome do Representante]',bold:true,font:'Montserrat',size:20})],alignment:AlignmentType.CENTER,spacing:{after:40}}),
     new Paragraph({children:[new TextRun({text:'FORNECEDORA',font:'Montserrat',size:18,color:'666666'}),new TextRun({text:'          ',font:'Montserrat',size:18}),new TextRun({text:'CANDIDATA',font:'Montserrat',size:18,color:'666666'})],alignment:AlignmentType.CENTER}),
+    pageFooter(imgRodape)
+  ];
+}
+function buildCardsDOCX(d,h){
+  const{heading,body,bullet,br,pageHeader,pageFooter,imgCapa,imgInicio,imgRodape,AlignmentType,Paragraph,TextRun,ImageRun,PageBreak}=h;
+  const smart=d.modo==='smart';
+  const items=d.items||[];
+  const pay=cardPaymentSummary(d.modo, d.pagamento, d.total||0);
+  const nEx=(s)=>numPorExtenso(s);
+  const tipoLabel=function(t){return t==='rfid'?'Cartão RFID':t==='smart'?'Eduall Smart':'Personalizado';};
+  const toc=['Cláusula 1 — Objeto','Cláusula 2 — Especificação dos Itens e Modalidade','Cláusula 3 — Condições Financeiras','Cláusula 4 — Prazo de Entrega','Cláusula 5 — Obrigações da Fornecedora','Cláusula 6 — Obrigações da Cliente','Cláusula 7 — Garantia','Cláusula 8 — Propriedade dos Cartões e Equipamentos','Cláusula 9 — Propriedade Intelectual e Licença de Software','Cláusula 10 — Tratamento e Titularidade dos Dados','Cláusula 11 — Rescisão','Cláusula 12 — Cláusula Penal','Cláusula 13 — Vigência','Cláusula 14 — Disposições Finais','Cláusula 15 — Aceitação'];
+  return[
+    new Paragraph({children:[new ImageRun({data:imgCapa,transformation:{width:595,height:841}})],spacing:{after:0}}),
+    new Paragraph({children:[new PageBreak()]}),
+    pageHeader(imgInicio),
+    new Paragraph({children:[new TextRun({text:'Sumário',bold:true,size:36,font:'Montserrat'})],alignment:AlignmentType.LEFT,spacing:{after:300}}),
+    ...toc.map(t=>bullet(t)),
+    pageFooter(imgRodape),
+    new Paragraph({children:[new PageBreak()]}),
+    pageHeader(imgInicio),
+    body('Entre as partes:'),
+    body('VRL IDENTIDADE, pessoa coletiva com NIF: 5001512323, com sede em Luanda, Centralidade do Kilamba, doravante designada FORNECEDORA;'),
+    body('e'),
+    body(`${(d.clientName||'').toUpperCase()}, pessoa coletiva com NIF: ${d.clientNIF}, com sede em ${d.clientSede}, doravante designada CLIENTE.`),
+    body(`As partes celebram o presente Contrato de Cartões e Identificação RFID${smart?' — EDUALL Smart':''}, regido pelas cláusulas seguintes:`),
+    br(),
+    heading('CLÁUSULA 1 — OBJETO'),
+    body(smart?'O presente contrato tem por objeto o fornecimento de cartões RFID e da solução de identificação e controlo de acesso, bem como a disponibilização do módulo EDUALL Smart, destinado a instituições que não utilizam o software de gestão escolar EDUALL.':'O presente contrato tem por objeto o fornecimento de cartões RFID e da solução de identificação e controlo de acesso, integrados no sistema EDUALL — Sistema de Gestão Escolar e Universitário —, incluindo a respectiva licença de uso do software, conforme as especificações acordadas entre as partes.'),
+    heading('CLÁUSULA 2 — ESPECIFICAÇÃO DOS ITENS E MODALIDADE'),
+    body(`A modalidade contratada é ${smart?'EDUALL Smart (sem software EDUALL)':'Com software EDUALL'}. Os itens fornecidos são os seguintes:`),
+    ...(items.length?items.map(it=>bullet(`${it.qty} × ${it.desc||tipoLabel(it.tipo)} — Kz ${fmtKz(it.price)}/un. — Subtotal: Kz ${fmtKz(it.sub)}`)):[bullet('(sem itens especificados)')]),
+    body(`${smart?'Valor anual de referência dos itens':'Valor total do contrato'}: Kz ${fmtKz(d.total||0)}.`),
+    heading('CLÁUSULA 3 — CONDIÇÕES FINANCEIRAS'),
+    body(`1. ${pay.texto}`),
+    body(`2. O não cumprimento dos prazos de pagamento acarretará a suspensão imediata dos serviços e a incidência de multa de ${d.multa}% sobre o valor em atraso.`),
+    pageFooter(imgRodape),
+    new Paragraph({children:[new PageBreak()]}),
+    pageHeader(imgInicio),
+    heading('CLÁUSULA 4 — PRAZO DE ENTREGA'),
+    body(`O prazo de entrega e activação dos cartões será de até ${d.prazo} (${nEx(d.prazo)}) dias úteis, contados a partir da data de assinatura do presente contrato e da confirmação do pagamento inicial.`),
+    heading('CLÁUSULA 5 — OBRIGAÇÕES DA FORNECEDORA'),
+    bullet('Fornecer, personalizar e activar os cartões RFID nas condições acordadas entre as partes.'),
+    bullet('Prestar apoio técnico durante o período de implementação e activação.'),
+    bullet(smart?'Disponibilizar o módulo EDUALL Smart de identificação e controlo de acesso.':'Assegurar a integração dos cartões com o sistema EDUALL.'),
+    bullet('Garantir a qualidade e o correcto funcionamento dos cartões fornecidos.'),
+    bullet(`Prestar suporte técnico pelo período de ${d.suporte} (${nEx(d.suporte)}) meses após a entrega.`),
+    heading('CLÁUSULA 6 — OBRIGAÇÕES DA CLIENTE'),
+    bullet('Fornecer atempadamente os dados e fotografias necessários à personalização dos cartões.'),
+    bullet('Disponibilizar os meios técnicos mínimos necessários à leitura e utilização dos cartões.'),
+    bullet('Cumprir pontualmente os pagamentos nos prazos e condições estabelecidos na Cláusula 3.'),
+    bullet('Utilizar os cartões e a solução exclusivamente para fins institucionais.'),
+    heading('CLÁUSULA 7 — GARANTIA'),
+    bullet(`A FORNECEDORA garante os cartões fornecidos contra defeitos de fabrico por um período de ${d.garantia} (${nEx(d.garantia)}) meses a contar da data de entrega.`),
+    bullet('A garantia não cobre danos resultantes de uso indevido, mau manuseamento, perda ou alteração não autorizada dos cartões.'),
+    bullet('A substituição de cartões danificados por uso indevido fica sujeita a orçamento à parte.'),
+    heading('CLÁUSULA 8 — PROPRIEDADE DOS CARTÕES E EQUIPAMENTOS'),
+    bullet('A propriedade dos cartões fornecidos transfere-se para a CLIENTE após o pagamento integral do respectivo valor.'),
+    bullet('Leitores, antenas e demais equipamentos que venham a ser fornecidos são regulados em Anexo Técnico próprio, a celebrar entre as partes.'),
+    bullet('Em caso de rescisão, os bens já pagos permanecem com a CLIENTE; os bens não pagos deverão ser devolvidos à FORNECEDORA.'),
+    pageFooter(imgRodape),
+    new Paragraph({children:[new PageBreak()]}),
+    pageHeader(imgInicio),
+    ...(smart?[
+      heading('CLÁUSULA 9 — EXCLUSÃO DA LICENÇA DE SOFTWARE EDUALL'),
+      body('1. Reconhece a CLIENTE que não adquire, pelo presente contrato, qualquer licença de uso do software de gestão EDUALL. O objecto limita-se aos cartões RFID e ao módulo EDUALL Smart de identificação e controlo de acesso.'),
+      body('2. Caso a CLIENTE pretenda utilizar o software EDUALL, deverá celebrar contrato de licenciamento autónomo com a FORNECEDORA.')
+    ]:[
+      heading('CLÁUSULA 9 — PROPRIEDADE INTELECTUAL E LICENÇA DE SOFTWARE'),
+      body('1. O sistema EDUALL é de propriedade exclusiva da FORNECEDORA e/ou dos seus parceiros tecnológicos.'),
+      body('2. A CLIENTE adquire o direito de uso não exclusivo, intransferível e limitado do software EDUALL durante a vigência do presente contrato.'),
+      body('3. É vedada à CLIENTE a reprodução, cópia, modificação, engenharia reversa, venda, cessão ou sublicenciamento do software sem autorização expressa da FORNECEDORA.')
+    ]),
+    heading('CLÁUSULA 10 — TRATAMENTO E TITULARIDADE DOS DADOS'),
+    body('1. Os dados introduzidos ou associados aos cartões pertencem à CLIENTE, na sua qualidade de titular.'),
+    body('2. A FORNECEDORA tratará exclusivamente os dados estritamente necessários à prestação dos serviços e à personalização dos cartões, em conformidade com a legislação aplicável em matéria de protecção de dados.'),
+    heading('CLÁUSULA 11 — RESCISÃO'),
+    body('O contrato poderá ser rescindido por qualquer das partes em caso de incumprimento de obrigação contratual não sanado no prazo de 15 (quinze) dias, ou por acordo escrito entre as partes.'),
+    heading('CLÁUSULA 12 — CLÁUSULA PENAL'),
+    body(`1. O atraso no pagamento das prestações devidas sujeita a CLIENTE à multa de ${d.multa}% sobre o valor em atraso, sem prejuízo da suspensão dos serviços.`),
+    body('2. Sobre as quantias em atraso incidem juros de mora de 1% (um por cento) ao mês.'),
+    heading('CLÁUSULA 13 — VIGÊNCIA'),
+    body('O presente contrato entra em vigor na data da sua assinatura, vigorando pelo período de fornecimento, garantia e suporte acordados, renovando-se automaticamente por iguais períodos quanto ao suporte, salvo comunicação escrita de não renovação com, pelo menos, 60 (sessenta) dias de antecedência.'),
+    heading('CLÁUSULA 14 — DISPOSIÇÕES FINAIS'),
+    body('1. Quaisquer alterações ou aditamentos ao presente contrato somente serão válidos se formalizados por escrito e assinados por ambas as partes.'),
+    body('2. Fica eleito o foro da comarca de Luanda, com renúncia expressa a qualquer outro, para dirimir quaisquer litígios decorrentes do presente contrato.'),
+    heading('CLÁUSULA 15 — ACEITAÇÃO'),
+    body('E, por estarem justas e acordadas, as partes assinam o presente contrato em 02 (duas) vias de igual teor e forma.'),
+    br(),
+    new Paragraph({children:[new TextRun({text:`Luanda, ${d.dia} de ${d.mes} de ${d.ano}.`,size:20,font:'Montserrat'})],spacing:{before:280,after:400}}),
+    new Paragraph({children:[new TextRun({text:'_______________________          _______________________',font:'Montserrat',size:20})],alignment:AlignmentType.CENTER,spacing:{before:200,after:80}}),
+    new Paragraph({children:[new TextRun({text:'VRL IDENTIDADE, LDA',bold:true,font:'Montserrat',size:20}),new TextRun({text:'          ',font:'Montserrat',size:20}),new TextRun({text:d.clientRep||'[Nome do Representante]',bold:true,font:'Montserrat',size:20})],alignment:AlignmentType.CENTER,spacing:{after:40}}),
+    new Paragraph({children:[new TextRun({text:'FORNECEDORA',font:'Montserrat',size:18,color:'666666'}),new TextRun({text:'          ',font:'Montserrat',size:18}),new TextRun({text:'CLIENTE',font:'Montserrat',size:18,color:'666666'})],alignment:AlignmentType.CENTER}),
     pageFooter(imgRodape)
   ];
 }
@@ -2233,7 +2641,10 @@ const HISTORY_STORE = 'vrl_history';
 function historyTitle(entry){
   const d = entry.data||{};
   switch(entry.tipo){
-    case 'contract': return d.type==='partner' ? 'Contrato de Parceria — '+(d.partnerType==='reseller'?'Reseller':d.partnerType==='referral'?'Referral':'Expert') : 'Contrato de Implementação — '+(d.clientName||'(sem nome)');
+    case 'contract': 
+      if(d.type==='partner') return 'Contrato de Parceria — '+(d.partnerType==='reseller'?'Reseller':d.partnerType==='referral'?'Referral':'Expert');
+      if(d.type==='cards') return 'Contrato de Cartões (RFID) — '+(d.clientName||'(sem nome)');
+      return 'Contrato de Implementação — '+(d.clientName||'(sem nome)');
     case 'letter':   return 'Carta de Apresentação — '+(d.escola||'(sem instituição)');
     case 'term':     return 'Termo de Demonstração — '+(d.instituicao||'(sem instituição)');
     case 'proposal': return (d.proposalSubType==='publico'?'Proposta Pública — '+(d.entidade||'(sem entidade)'):'Proposta de Representação — '+(d.empresa||'(sem empresa)'));
@@ -2329,6 +2740,10 @@ function restoreFromHistory(id){
     if(d.type==='partner'){
       setContractType('partner');
       document.getElementById('f_partnerType').value = d.partnerType||'reseller';
+      generateContract();
+    } else if(d.type==='cards'){
+      setContractType('cards');
+      restoreCardsModal(d);
       generateContract();
     } else {
       setContractType('client');
