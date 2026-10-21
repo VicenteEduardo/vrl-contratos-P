@@ -94,6 +94,7 @@ Todas as 5 capas (Cliente, Parceiro, Carta, Termo, Proposta Comercial, Proposta 
 - Bloco de assinaturas mostra apenas nome e NIF do parceiro
 - `buildPartnerDOCX()` actualizado com a mesma estrutura
 - A página **“Programa de Parceiros — Modelos Disponíveis”** deixa de ser incluída quando o contrato é por **percentagem**, evitando contradizer a remuneração acordada; o Sumário é ajustado automaticamente (páginas e entrada removida)
+- Removidas da Cláusula 5 as cláusulas automáticas de transição de estatuto (Referral→Reseller, Reseller→Expert) e a atribuição de território exclusivo com referência a “Anexo I”, por não fazerem parte das condições acordadas
 
 ### 13. Exportação PDF mais rápida
 - Escala de renderização reduzida de `2` para `1,5–1,6` (~150 dpi), mantendo o texto nítido

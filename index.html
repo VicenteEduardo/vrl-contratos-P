@@ -1593,23 +1593,19 @@ function partnerClause5HTML(d){
       `O presente modelo está condicionado à angariação mínima de <strong>3 (três) clientes finais</strong> pelo <strong>PARCEIRO</strong>, sendo este o requisito de ativação e manutenção do estatuto Reseller.`,
       R.isFixed?`O <strong>PARCEIRO</strong> terá direito a ${rem} por cada cliente angariado.`:`O <strong>PARCEIRO</strong> terá direito a ${rem}, de forma recorrente enquanto o contrato do cliente final com a <strong>VRL</strong> se mantiver ativo.`,
       `O contrato com cada cliente final será sempre celebrado directamente entre esse cliente e a <strong>VRL</strong>.`,
-      `O pagamento das comissões será efetuado até ao <strong>dia 10 do mês seguinte</strong>, mediante recibo ou fatura emitida pelo <strong>PARCEIRO</strong>.`,
-      `Ao atingir <strong>10 (dez) clientes activos</strong>, o <strong>PARCEIRO</strong> transita automaticamente para o estatuto <strong>Expert</strong>.`
+      `O pagamento das comissões será efetuado até ao <strong>dia 10 do mês seguinte</strong>, mediante recibo ou fatura emitida pelo <strong>PARCEIRO</strong>.`
     ];
   } else if(pt==='referral'){
     itens=[
       `O <strong>PARCEIRO</strong> terá direito a ${R.isFixed?`um <strong>valor fixo de Kz ${R.fixedFmt}</strong> ${R.period==='por mês'?'por mês':'por cada referência convertida'}`:`uma <strong>comissão de ${fmtPct(R.pct)}%</strong> sobre o valor de cada venda resultante de referência convertida`}.`,
-      `O pagamento será efetuado em <strong>30 dias</strong> após a confirmação de adesão e do primeiro pagamento do cliente referenciado.`,
-      `Ao atingir <strong>5 (cinco) clientes convertidos acumulados</strong>, o <strong>PARCEIRO</strong> transita automaticamente para o estatuto <strong>Reseller</strong>.`,
-      `Território ou sector exclusivo atribuído (Anexo I).`
+      `O pagamento será efetuado em <strong>30 dias</strong> após a confirmação de adesão e do primeiro pagamento do cliente referenciado.`
     ];
   } else {
     itens=[
       `O <strong>PARCEIRO</strong> terá direito a ${rem}, acumulável com os incentivos por desempenho abaixo previstos.`,
       `Bónus progressivos: 5 clientes → <strong>Kz 500.000,00</strong>; 10 clientes → <strong>Kz 1.200.000,00</strong>; 20 clientes → <strong>Kz 3.000.000,00</strong>. Cada bónus pago em 30 dias após verificação do marco.`,
       `Residual mensal de <strong>Kz 8.000,00 por cliente ativo</strong> durante <strong>12 (doze) meses</strong>.`,
-      `Após os 12 meses, comissão permanente de <strong>Kz 3.000,00 a Kz 4.000,00 por cliente ativo por mês</strong>, sem limite de duração.`,
-      `Território ou sector exclusivo atribuído (Anexo I).`
+      `Após os 12 meses, comissão permanente de <strong>Kz 3.000,00 a Kz 4.000,00 por cliente ativo por mês</strong>, sem limite de duração.`
     ];
   }
   return `<h3>Cláusula 5 — Modelo de Comissionamento (${model})</h3><ol>${itens.map(function(t){return '<li>'+t+'</li>';}).join('')}</ol>`;
@@ -2434,23 +2430,19 @@ function partnerClause5DOCX(d,h){
       'O presente modelo está condicionado à angariação mínima de 3 (três) clientes finais pelo PARCEIRO, sendo este o requisito de ativação e manutenção do estatuto Reseller.',
       R.isFixed?`O PARCEIRO terá direito a ${rem} por cada cliente angariado.`:`O PARCEIRO terá direito a ${rem}, de forma recorrente enquanto o contrato do cliente final com a VRL se mantiver ativo.`,
       'O contrato com cada cliente final será sempre celebrado directamente entre esse cliente e a VRL.',
-      'O pagamento das comissões será efetuado até ao dia 10 do mês seguinte, mediante recibo ou fatura emitida pelo PARCEIRO.',
-      'Ao atingir 10 (dez) clientes activos, o PARCEIRO transita automaticamente para o estatuto Expert.'
+      'O pagamento das comissões será efetuado até ao dia 10 do mês seguinte, mediante recibo ou fatura emitida pelo PARCEIRO.'
     ];
   } else if(pt==='referral'){
     itens=[
       `O PARCEIRO terá direito a ${R.isFixed?`um valor fixo de Kz ${R.fixedFmt} ${R.period==='por mês'?'por mês':'por cada referência convertida'}`:`uma comissão de ${fmtPct(R.pct)}% sobre o valor de cada venda resultante de referência convertida`}.`,
-      'O pagamento será efetuado em 30 dias após a confirmação de adesão e do primeiro pagamento do cliente referenciado.',
-      'Ao atingir 5 (cinco) clientes convertidos acumulados, o PARCEIRO transita automaticamente para o estatuto Reseller.',
-      'Território ou sector exclusivo atribuído (Anexo I).'
+      'O pagamento será efetuado em 30 dias após a confirmação de adesão e do primeiro pagamento do cliente referenciado.'
     ];
   } else {
     itens=[
       `O PARCEIRO terá direito a ${rem}, acumulável com os incentivos por desempenho abaixo previstos.`,
       'Bónus progressivos: 5 clientes → Kz 500.000,00; 10 clientes → Kz 1.200.000,00; 20 clientes → Kz 3.000.000,00. Cada bónus pago em 30 dias após verificação do marco.',
       'Residual mensal de Kz 8.000,00 por cliente ativo durante 12 (doze) meses.',
-      'Após os 12 meses, comissão permanente de Kz 3.000,00 a Kz 4.000,00 por cliente ativo por mês, sem limite de duração.',
-      'Território ou sector exclusivo atribuído (Anexo I).'
+      'Após os 12 meses, comissão permanente de Kz 3.000,00 a Kz 4.000,00 por cliente ativo por mês, sem limite de duração.'
     ];
   }
   return [heading('CLÁUSULA 5 — MODELO DE COMISSIONAMENTO ('+model.toUpperCase()+')')].concat(itens.map(function(t){return body(t);}));
