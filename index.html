@@ -579,20 +579,68 @@
           </div>
         </div>
         <div id="formPartner" style="display:none">
+          <div class="section-label">Dados do Parceiro</div>
+          <div class="row g-3">
+            <div class="col-md-8"><label class="form-label">Nome do Parceiro (pessoa ou empresa)</label><input id="f_partnerName" class="form-control" placeholder="Ex: João Manuel da Silva"/></div>
+            <div class="col-md-4"><label class="form-label">NIF <span style="font-weight:400;text-transform:none;color:#999;">(opcional)</span></label><input id="f_partnerNIF" class="form-control" placeholder="Ex: 5001838091"/></div>
+            <div class="col-md-6"><label class="form-label">Sede / Localidade <span style="font-weight:400;text-transform:none;color:#999;">(opcional)</span></label><input id="f_partnerSede" class="form-control" placeholder="Ex: Luanda"/></div>
+            <div class="col-md-6"><label class="form-label">Nome do Representante <span style="font-weight:400;text-transform:none;color:#999;">(opcional)</span></label><input id="f_partnerRep" class="form-control" placeholder="Ex: João Manuel da Silva"/></div>
+            <div class="col-md-6"><label class="form-label">Cargo do Representante <span style="font-weight:400;text-transform:none;color:#999;">(opcional)</span></label><input id="f_partnerCargo" class="form-control" placeholder="Ex: Director Geral"/></div>
+            <div class="col-md-6"><label class="form-label">Duração da Parceria (meses)</label><input id="f_pduracao" class="form-control" value="12" inputmode="numeric"/></div>
+          </div>
+
           <div class="section-label">Modelo de Parceria</div>
           <div class="row g-3">
             <div class="col-12">
               <label class="form-label">Selecione o modelo de parceria</label>
-              <select id="f_partnerType" class="form-select">
+              <select id="f_partnerType" class="form-select" onchange="aplicarModeloParceiro()">
                 <option value="reseller">Parceiro Reseller — Revenda com comissão mensal recorrente (15%)</option>
                 <option value="referral">Parceiro Referral — Recomendação com pagamento único</option>
                 <option value="expert">Parceiro Expert — Canal premium com bónus por volume</option>
               </select>
             </div>
           </div>
+
+          <div class="section-label">Tipo de Remuneração</div>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Forma de remuneração</label>
+              <select id="f_remType" class="form-select" onchange="atualizarRemuneracaoParceiro()">
+                <option value="percent" selected>Percentagem (%) sobre o valor da venda</option>
+                <option value="fixed">Valor fixo (Kz)</option>
+              </select>
+            </div>
+            <div class="col-md-6" id="f_remPercentWrap">
+              <label class="form-label">Percentagem acordada (%)</label>
+              <input id="f_remPercent" class="form-control" value="15" inputmode="decimal" placeholder="Ex: 15"/>
+            </div>
+            <div class="col-md-6" id="f_remFixedWrap" style="display:none;">
+              <label class="form-label">Valor fixo acordado (Kz)</label>
+              <input id="f_remFixed" class="form-control" value="200.000,00" inputmode="decimal" placeholder="Ex: 200.000,00"/>
+            </div>
+            <div class="col-md-6" id="f_remPeriodWrap" style="display:none;">
+              <label class="form-label">Periodicidade do valor fixo</label>
+              <select id="f_remPeriod" class="form-select">
+                <option value="por cliente angariado" selected>Por cliente angariado (pagamento único)</option>
+                <option value="por mês">Por mês (recorrente)</option>
+                <option value="pagamento único">Pagamento único por referência</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <div id="f_remResumo" style="background:#fff8f5;border:1.5px solid #f0d8cc;border-radius:10px;padding:10px 14px;font-size:.8rem;color:#555;line-height:1.5;">Remuneração: <strong>15%</strong> sobre o valor de cada venda do sistema EDUALL.</div>
+            </div>
+          </div>
+
+          <div class="section-label">Data da Assinatura</div>
+          <div class="row g-3">
+            <div class="col-md-4"><label class="form-label">Dia</label><input id="f_pdia" class="form-control" placeholder="Ex: 05"/></div>
+            <div class="col-md-4"><label class="form-label">Mês</label><input id="f_pmes" class="form-control" placeholder="Ex: Abril"/></div>
+            <div class="col-md-4"><label class="form-label">Ano</label><input id="f_pano" class="form-control" placeholder="Ex: 2026"/></div>
+          </div>
+
           <div style="margin-top:20px;background:#fff8f5;border:1.5px solid #f0d8cc;border-radius:12px;padding:16px 20px;">
-            <div style="font-size:.78rem;font-weight:700;color:var(--orange);margin-bottom:6px;">ℹ️ Contrato Genérico</div>
-            <p style="font-size:.82rem;color:#666;margin:0;line-height:1.6;">Este contrato será gerado com <strong>espaços em branco</strong> para preenchimento manual — nome do parceiro, NIF, sede, representante, cargo, data e valores acordados.</p>
+            <div style="font-size:.78rem;font-weight:700;color:var(--orange);margin-bottom:6px;">ℹ️ Campos opcionais</div>
+            <p style="font-size:.82rem;color:#666;margin:0;line-height:1.6;">Os campos não preenchidos aparecem no contrato como <strong>espaços em branco</strong> para preenchimento manual. A remuneração escolhida (percentagem ou valor fixo) será aplicada na Cláusula 5.</p>
           </div>
         </div>
         <div id="formCards" style="display:none">
@@ -1188,6 +1236,62 @@ function selectType(type){
   if(type==='cards'){ ensureCardItems(); atualizarModoCartao(); }
 }
 
+// ── CONTRATO DE PARCERIA — modelo e remuneração ──
+const PARTNER_MODEL_DEFAULTS={
+  reseller:{remType:'percent',remPercent:'15'},
+  referral:{remType:'fixed',remFixed:'200.000,00',remPeriod:'por cliente angariado'},
+  expert:{remType:'fixed',remFixed:'500.000,00',remPeriod:'por cliente angariado'}
+};
+function aplicarModeloParceiro(){
+  var sel=document.getElementById('f_partnerType'); if(!sel) return;
+  var def=PARTNER_MODEL_DEFAULTS[sel.value]||PARTNER_MODEL_DEFAULTS.reseller;
+  setV('f_remType', def.remType||'percent');
+  if(def.remPercent!==undefined) setV('f_remPercent', def.remPercent);
+  if(def.remFixed!==undefined) setV('f_remFixed', def.remFixed);
+  if(def.remPeriod!==undefined) setV('f_remPeriod', def.remPeriod);
+  atualizarRemuneracaoParceiro();
+}
+function atualizarRemuneracaoParceiro(){
+  var t=document.getElementById('f_remType');
+  var isFixed=t && t.value==='fixed';
+  var pw=document.getElementById('f_remPercentWrap');
+  var fw=document.getElementById('f_remFixedWrap');
+  var dw=document.getElementById('f_remPeriodWrap');
+  if(pw) pw.style.display=isFixed?'none':'';
+  if(fw) fw.style.display=isFixed?'':'none';
+  if(dw) dw.style.display=isFixed?'':'none';
+  var out=document.getElementById('f_remResumo');
+  if(!out) return;
+  if(isFixed){
+    var val=parseKz(getV('f_remFixed'));
+    out.innerHTML='Remuneração: <strong>Kz '+fmtKz(val)+'</strong> '+(getV('f_remPeriod')||'por cliente angariado')+'.';
+  } else {
+    var pct=parseFloat(String(getV('f_remPercent')||'0').replace(',','.'))||0;
+    out.innerHTML='Remuneração: <strong>'+fmtPct(pct)+'%</strong> sobre o valor de cada venda do sistema EDUALL.';
+  }
+}
+['f_remPercent','f_remFixed','f_remPeriod'].forEach(function(id){
+  var el=document.getElementById(id);
+  if(el){ el.addEventListener('input', atualizarRemuneracaoParceiro); el.addEventListener('change', atualizarRemuneracaoParceiro); }
+});
+function restorePartnerModal(d){
+  setV('f_partnerName', d.partnerName);
+  setV('f_partnerNIF', d.partnerNIF);
+  setV('f_partnerSede', d.partnerSede);
+  setV('f_partnerRep', d.partnerRep);
+  setV('f_partnerCargo', d.partnerCargo);
+  setV('f_partnerType', d.partnerType||'reseller');
+  setV('f_remType', d.remType||'percent');
+  setV('f_remPercent', d.remPercent||'15');
+  setV('f_remFixed', d.remFixed||'200.000,00');
+  setV('f_remPeriod', d.remPeriod||'por cliente angariado');
+  setV('f_pduracao', d.duracao||'12');
+  setV('f_pdia', d.dia);
+  setV('f_pmes', d.mes);
+  setV('f_pano', d.ano);
+  atualizarRemuneracaoParceiro();
+}
+
 // ── CONTRATO DE CARTÕES — itens dinâmicos ──
 function ensureCardItems(){
   var body=document.getElementById('c_itemsBody');
@@ -1345,7 +1449,7 @@ function generateContract(){
     const total=items.reduce(function(a,i){return a+(i.sub||0);},0);
     contractData={type:'cards',modo:getV('c_modo')||'comSoftware',clientName:getV('c_clientName'),clientNIF:getV('c_clientNIF'),clientSede:getV('c_clientSede'),clientRep:getV('c_clientRep'),clientCargo:getV('c_clientCargo'),items:items,total:total,pagamento:getV('c_pagamento')||'Pagamento Único',multa:getV('c_multa')||'7',garantia:getV('c_garantia')||'12',dia:getV('c_dia'),mes:getV('c_mes'),ano:getV('c_ano'),prazo:getV('c_prazo')||'15',suporte:getV('c_suporte')||'12'};
   } else {
-    contractData={type:'partner',partnerType:getV('f_partnerType')};
+    contractData={type:'partner',partnerType:getV('f_partnerType'),partnerName:getV('f_partnerName'),partnerNIF:getV('f_partnerNIF'),partnerSede:getV('f_partnerSede'),partnerRep:getV('f_partnerRep'),partnerCargo:getV('f_partnerCargo'),remType:getV('f_remType')||'percent',remPercent:getV('f_remPercent'),remFixed:getV('f_remFixed'),remPeriod:getV('f_remPeriod')||'por cliente angariado',duracao:getV('f_pduracao')||'12',dia:getV('f_pdia'),mes:getV('f_pmes'),ano:getV('f_pano')};
   }
   bootstrap.Modal.getOrCreateInstance(document.getElementById('contractModal')).hide();
   renderPages();
@@ -1369,7 +1473,7 @@ function editContract(){
   }
   if(_lastDocType==='contract' && contractData && contractData.type){
     if(contractData.type==='cards'){ selectType('cards'); restoreCardsModal(contractData); }
-    else if(contractData.type==='partner'){ selectType('partner'); }
+    else if(contractData.type==='partner'){ selectType('partner'); restorePartnerModal(contractData); }
     else if(contractData.type==='client'){ selectType('client'); }
   }
   bootstrap.Modal.getOrCreateInstance(document.getElementById(modalId)).show();
@@ -1464,9 +1568,63 @@ function renderClientPages(wrap){
 // ── PARTNER CONTRACT ──
 function blank(w){ return `<span style="display:inline-block;border-bottom:1px solid #333;min-width:${w||120}px;">&nbsp;</span>`; }
 
+function partnerVal(v,w,bold){
+  const s=String(v||'').trim();
+  if(!s) return blank(w||160);
+  const safe=escapeHtml(s);
+  return bold?`<strong>${safe}</strong>`:safe;
+}
+function partnerRemInfo(d){
+  const isFixed=d.remType==='fixed';
+  let pct=parseFloat(String(d.remPercent===undefined||d.remPercent===null?'':d.remPercent).replace(',','.'));
+  if(!isFinite(pct)||pct<0) pct=0;
+  const fixed=parseKz(d.remFixed);
+  return {isFixed:isFixed,pct:pct,fixed:fixed,fixedFmt:fmtKz(fixed),period:d.remPeriod||'por cliente angariado'};
+}
+function partnerClause5HTML(d){
+  const pt=d.partnerType;
+  const R=partnerRemInfo(d);
+  const model=pt==='reseller'?'Reseller':pt==='referral'?'Referral':'Expert';
+  const rem=R.isFixed
+    ? `um <strong>valor fixo de Kz ${R.fixedFmt}</strong>, ${R.period}`
+    : `uma <strong>comissão de ${fmtPct(R.pct)}%</strong> sobre o valor de cada venda do sistema EDUALL`;
+  let itens=[];
+  if(pt==='reseller'){
+    itens=[
+      `O presente modelo está condicionado à angariação mínima de <strong>3 (três) clientes finais</strong> pelo <strong>PARCEIRO</strong>, sendo este o requisito de ativação e manutenção do estatuto Reseller.`,
+      R.isFixed?`O <strong>PARCEIRO</strong> terá direito a ${rem} por cada cliente angariado.`:`O <strong>PARCEIRO</strong> terá direito a ${rem}, de forma recorrente enquanto o contrato do cliente final com a <strong>VRL</strong> se mantiver ativo.`,
+      `O contrato com cada cliente final será sempre celebrado directamente entre esse cliente e a <strong>VRL</strong>.`,
+      `O pagamento das comissões será efetuado até ao <strong>dia 10 do mês seguinte</strong>, mediante recibo ou fatura emitida pelo <strong>PARCEIRO</strong>.`,
+      `Ao atingir <strong>10 (dez) clientes activos</strong>, o <strong>PARCEIRO</strong> transita automaticamente para o estatuto <strong>Expert</strong>.`
+    ];
+  } else if(pt==='referral'){
+    itens=[
+      `O <strong>PARCEIRO</strong> terá direito a ${R.isFixed?`um <strong>valor fixo de Kz ${R.fixedFmt}</strong> ${R.period==='por mês'?'por mês':'por cada referência convertida'}`:`uma <strong>comissão de ${fmtPct(R.pct)}%</strong> sobre o valor de cada venda resultante de referência convertida`}.`,
+      `O pagamento será efetuado em <strong>30 dias</strong> após a confirmação de adesão e do primeiro pagamento do cliente referenciado.`,
+      `Ao atingir <strong>5 (cinco) clientes convertidos acumulados</strong>, o <strong>PARCEIRO</strong> transita automaticamente para o estatuto <strong>Reseller</strong>.`,
+      `Território ou sector exclusivo atribuído (Anexo I).`
+    ];
+  } else {
+    itens=[
+      `O <strong>PARCEIRO</strong> terá direito a ${rem}, acumulável com os incentivos por desempenho abaixo previstos.`,
+      `Bónus progressivos: 5 clientes → <strong>Kz 500.000,00</strong>; 10 clientes → <strong>Kz 1.200.000,00</strong>; 20 clientes → <strong>Kz 3.000.000,00</strong>. Cada bónus pago em 30 dias após verificação do marco.`,
+      `Residual mensal de <strong>Kz 8.000,00 por cliente ativo</strong> durante <strong>12 (doze) meses</strong>.`,
+      `Após os 12 meses, comissão permanente de <strong>Kz 3.000,00 a Kz 4.000,00 por cliente ativo por mês</strong>, sem limite de duração.`,
+      `Território ou sector exclusivo atribuído (Anexo I).`
+    ];
+  }
+  return `<h3>Cláusula 5 — Modelo de Comissionamento (${model})</h3><ol>${itens.map(function(t){return '<li>'+t+'</li>';}).join('')}</ol>`;
+}
+
 function renderPartnerPages(wrap){
-  const pt=contractData.partnerType;
+  const d=contractData;
+  const pt=d.partnerType;
   const tipoLabel=pt==='reseller'?'Parceiro Reseller':pt==='referral'?'Parceiro Referral':'Parceiro Expert';
+  const pNameTxt=d.partnerName?escapeHtml(d.partnerName):'Nome do Parceiro';
+  const pCargoTxt=d.partnerCargo?escapeHtml(d.partnerCargo):'Cargo do Parceiro';
+  const pDocTxt=d.partnerNIF?'NIF: '+escapeHtml(d.partnerNIF):'Empresa do Parceiro';
+  const durTxt=d.duracao?`<strong>${escapeHtml(d.duracao)} (${numPorExtenso(d.duracao)}) meses</strong>`:`<strong>${blank(80)} meses</strong>`;
+  const dataLinha=`Luanda, aos ${partnerVal(d.dia,40)} dias do mês de ${partnerVal(d.mes,100)} de ${partnerVal(d.ano,60)}.`;
   coverPage(wrap,'partner');
   page(wrap,`<h2>Sumário</h2><ul class="toc-list"><li><span>Programa de Parceiros — Modelos Disponíveis</span><span>3</span></li><li><span>Cláusula 1 — Objeto e Modelo de Parceria</span><span>4</span></li><li><span>Cláusula 2 — Identificação das Partes</span><span>4</span></li><li><span>Cláusula 3 — Obrigações da VRL Identidade</span><span>4</span></li><li><span>Cláusula 4 — Obrigações do Parceiro</span><span>5</span></li><li><span>Cláusula 5 — Modelo de Comissionamento</span><span>5</span></li><li><span>Cláusula 6 — Período de Demonstração ao Cliente Final</span><span>6</span></li><li><span>Cláusula 7 — Propriedade Intelectual e Uso da Marca</span><span>6</span></li><li><span>Cláusula 8 — Confidencialidade</span><span>6</span></li><li><span>Cláusula 9 — Vigência e Renovação</span><span>6</span></li><li><span>Cláusula 10 — Rescisão</span><span>6</span></li><li><span>Cláusula 11 — Disposições Finais</span><span>7</span></li><li><span>Cláusula 12 — Aceitação</span><span>7</span></li></ul>`);
   page(wrap,`<h2 style="font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;color:#1a1a1a;">Programa de Parceiros EDUALL</h2><p style="font-size:9px;color:#555;margin:0 0 16px;line-height:1.5;border-bottom:1px solid #ddd;padding-bottom:12px;">O Programa de Parceiros EDUALL disponibiliza três modelos de colaboração comercial, adaptados a diferentes perfis. Todos os modelos incluem período de demonstração gratuita para o cliente final (15 a 30 dias) e exclusividade territorial ou sectorial.</p>
@@ -1474,15 +1632,12 @@ function renderPartnerPages(wrap){
   <div style="border:1px solid #ccc;border-left:3px solid #555;padding:10px 12px;margin-bottom:10px;"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;"><div><span style="font-size:7px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#555;border:1px solid #aaa;padding:1px 6px;">REFERRAL</span><span style="font-size:10px;font-weight:700;color:#1a1a1a;margin-left:8px;">Recomendação Premiada</span></div><div style="text-align:right;"><span style="font-size:9.5px;font-weight:700;color:#1a1a1a;">80.000 – 400.000 Kz</span><span style="font-size:7px;color:#777;margin-left:4px;">por cliente · único</span></div></div><p style="font-size:8.5px;color:#333;margin:0 0 6px;line-height:1.6;">Tabela fixa: pequeno 80K · médio 200K · grande 400K Kz. Pagamento em 30 dias após 1.ª mensalidade. Sem limite de referências.</p></div>
   <div style="border:1px solid #ccc;border-left:3px solid #333;padding:10px 12px;margin-bottom:10px;"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;"><div><span style="font-size:7px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#555;border:1px solid #aaa;padding:1px 6px;">EXPERT</span><span style="font-size:10px;font-weight:700;color:#1a1a1a;margin-left:8px;">Canal Premium</span></div><div style="text-align:right;"><span style="font-size:9.5px;font-weight:700;color:#1a1a1a;">500K / 1.200K / 3.000K Kz + residual</span></div></div><p style="font-size:8.5px;color:#333;margin:0 0 6px;line-height:1.6;">Bónus: 5 clientes→500K · 10→1,2M · 20→3M Kz. Residual mensal: 8.000 Kz/cliente/mês durante 12 meses, depois 3.000–4.000 Kz permanente.</p></div>
   <div style="border:1px solid #ccc;padding:7px 12px;background:#f9f9f9;"><p style="font-size:8px;color:#333;margin:0;line-height:1.5;"><strong>Exclusividade Territorial e Sectorial:</strong> Cada Parceiro recebe zona geográfica ou sector exclusivo (Anexo I), sem concorrência entre parceiros VRL pelo mesmo cliente.</p></div>`);
-  page(wrap,`<p>Entre as partes:</p><p><strong>VRL IDENTIDADE</strong>, NIF: <strong>5001512323</strong>, Luanda, Centralidade do Kilamba, doravante <strong>VRL</strong>; e ${blank(220)}, NIF: ${blank(120)}, sede em ${blank(160)}, representada por ${blank(200)}, na qualidade de ${blank(160)}, doravante <strong>PARCEIRO</strong>.</p><p>As partes celebram o presente <strong>Contrato de Parceria Comercial — Programa EDUALL (${tipoLabel})</strong>:</p><h3>Cláusula 1 — Objeto e Modelo de Parceria</h3><p>Estabelece os termos e condições da parceria comercial entre a <strong>VRL</strong> e o <strong>PARCEIRO</strong>, no modelo <strong>${tipoLabel}</strong>, para comercialização, referenciação ou distribuição do sistema EDUALL.</p><h3>Cláusula 2 — Identificação das Partes</h3><p>O <strong>PARCEIRO</strong> é representado por ${blank(200)}, na qualidade de ${blank(160)}, com plenos poderes para os atos inerentes à presente parceria.</p><h3>Cláusula 3 — Obrigações da VRL Identidade</h3><ol><li>Disponibilizar ao <strong>PARCEIRO</strong> materiais de vendas, formação e documentação técnica do sistema EDUALL.</li><li>Prestar suporte técnico e comercial necessário para a atividade do <strong>PARCEIRO</strong>.</li><li>Processar as comissões devidas nos termos acordados na Cláusula 5.</li><li>Manter o <strong>PARCEIRO</strong> informado sobre atualizações com antecedência mínima de 30 dias.</li><li>Assegurar a qualidade e continuidade do sistema EDUALL junto dos clientes finais.</li></ol>`);
+  page(wrap,`<p>Entre as partes:</p><p><strong>VRL IDENTIDADE</strong>, NIF: <strong>5001512323</strong>, Luanda, Centralidade do Kilamba, doravante <strong>VRL</strong>; e ${partnerVal(d.partnerName,220,true)}, NIF: ${partnerVal(d.partnerNIF,120,true)}, sede em ${partnerVal(d.partnerSede,160)}, representada por ${partnerVal(d.partnerRep,200)}, na qualidade de ${partnerVal(d.partnerCargo,160)}, doravante <strong>PARCEIRO</strong>.</p><p>As partes celebram o presente <strong>Contrato de Parceria Comercial — Programa EDUALL (${tipoLabel})</strong>:</p><h3>Cláusula 1 — Objeto e Modelo de Parceria</h3><p>Estabelece os termos e condições da parceria comercial entre a <strong>VRL</strong> e o <strong>PARCEIRO</strong>, no modelo <strong>${tipoLabel}</strong>, para comercialização, referenciação ou distribuição do sistema EDUALL.</p><h3>Cláusula 2 — Identificação das Partes</h3><p>O <strong>PARCEIRO</strong> é representado por ${partnerVal(d.partnerRep,200)}, na qualidade de ${partnerVal(d.partnerCargo,160)}, com plenos poderes para os atos inerentes à presente parceria.</p><h3>Cláusula 3 — Obrigações da VRL Identidade</h3><ol><li>Disponibilizar ao <strong>PARCEIRO</strong> materiais de vendas, formação e documentação técnica do sistema EDUALL.</li><li>Prestar suporte técnico e comercial necessário para a atividade do <strong>PARCEIRO</strong>.</li><li>Processar as comissões devidas nos termos acordados na Cláusula 5.</li><li>Manter o <strong>PARCEIRO</strong> informado sobre atualizações com antecedência mínima de 30 dias.</li><li>Assegurar a qualidade e continuidade do sistema EDUALL junto dos clientes finais.</li></ol>`);
 
-  let cl5='';
-  if(pt==='reseller'){cl5=`<h3>Cláusula 5 — Modelo de Comissionamento (Reseller)</h3><ol><li>O presente modelo está condicionado à angariação mínima de <strong>3 (três) clientes finais</strong> pelo <strong>PARCEIRO</strong>, sendo este o requisito de ativação e manutenção do estatuto Reseller.</li><li>O <strong>PARCEIRO</strong> comercializará o sistema EDUALL pelo seu valor de tabela acrescido de <strong>15% (quinze por cento)</strong>, valor esse que constitui a sua margem e comissão sobre cada cliente angariado.</li><li>A <strong>VRL</strong> emitirá fatura ao <strong>PARCEIRO</strong> pelo valor base do produto; o <strong>PARCEIRO</strong> repercutirá ao cliente final o valor total (base + 15%), retendo a diferença como remuneração.</li><li>Esta comissão de 15% é recorrente, apurada mensalmente, enquanto o contrato do cliente final com a <strong>VRL</strong> se mantiver ativo.</li><li>O pagamento das comissões será efetuado até ao <strong>dia 10 do mês seguinte</strong>, mediante recibo ou fatura emitida pelo <strong>PARCEIRO</strong>.</li><li>O contrato com cada cliente final será sempre celebrado directamente entre esse cliente e a <strong>VRL</strong>.</li><li>Ao atingir <strong>10 (dez) clientes activos</strong>, o <strong>PARCEIRO</strong> transita automaticamente para o estatuto <strong>Expert</strong>.</li></ol>`;}
-  else if(pt==='referral'){cl5=`<h3>Cláusula 5 — Modelo de Comissionamento (Referral)</h3><ol><li>O <strong>PARCEIRO</strong> tem direito a um <strong>pagamento único</strong> por referência convertida: pequena — <strong>Kz 80.000,00</strong>; média — <strong>Kz 200.000,00</strong>; grande — <strong>Kz 400.000,00</strong>.</li><li>Pagamento em 30 dias após confirmação de adesão e primeiro pagamento do cliente referenciado.</li><li>Ao atingir <strong>5 (cinco) clientes convertidos acumulados</strong>, o <strong>PARCEIRO</strong> transita automaticamente para o estatuto <strong>Reseller</strong>.</li><li>Território ou sector exclusivo atribuído (Anexo I).</li></ol>`;}
-  else{cl5=`<h3>Cláusula 5 — Modelo de Comissionamento (Expert)</h3><ol><li>Bónus progressivos: 5 clientes → <strong>Kz 500.000,00</strong>; 10 clientes → <strong>Kz 1.200.000,00</strong>; 20 clientes → <strong>Kz 3.000.000,00</strong>. Cada bónus pago em 30 dias após verificação do marco.</li><li>Residual mensal de <strong>Kz 8.000,00 por cliente ativo</strong> durante <strong>12 (doze) meses</strong>.</li><li>Após os 12 meses, comissão permanente de <strong>Kz 3.000,00 a Kz 4.000,00 por cliente ativo por mês</strong>, sem limite de duração.</li><li>Território ou sector exclusivo atribuído (Anexo I).</li></ol>`;}
+  const cl5=partnerClause5HTML(d);
 
   page(wrap,`<h3>Cláusula 4 — Obrigações do Parceiro</h3><ol><li>Promover o sistema EDUALL de forma ética e alinhada com os valores da <strong>VRL</strong>.</li><li>Não efetuar promessas sobre o produto sem autorização prévia da <strong>VRL</strong>.</li><li>Manter confidencialidade sobre preços, margens e condições comerciais da <strong>VRL</strong>.</li><li>Reportar mensalmente as atividades comerciais e pipeline de potenciais clientes.</li><li>Não representar produtos concorrentes diretos do EDUALL sem autorização escrita da <strong>VRL</strong>.</li></ol>${cl5}`);
-  page(wrap,`<h3>Cláusula 6 — Período de Demonstração ao Cliente Final</h3><p>Cada cliente final pode beneficiar de um período de demonstração gratuita do sistema EDUALL de <strong>15 a 30 dias</strong>, findo o qual deverá formalizar o contrato de licença ou cessar a utilização.</p><h3>Cláusula 7 — Propriedade Intelectual e Uso da Marca</h3><ol><li>O sistema EDUALL e toda a sua propriedade intelectual pertencem exclusivamente à <strong>VRL IDENTIDADE</strong>.</li><li>O <strong>PARCEIRO</strong> fica autorizado a utilizar a marca EDUALL nas suas ações comerciais, respeitando as diretrizes de identidade visual.</li><li>Finda a parceria, o <strong>PARCEIRO</strong> obriga-se a cessar imediatamente o uso de qualquer marca ou material da <strong>VRL</strong>.</li></ol><h3>Cláusula 8 — Confidencialidade</h3><p>Ambas as partes comprometem-se a manter sigilo sobre todas as informações obtidas, durante a vigência e por <strong>2 (dois) anos</strong> após o término.</p><h3>Cláusula 9 — Vigência e Renovação</h3><p>O presente contrato entra em vigor na data da sua assinatura e tem duração de <strong>${blank(80)} meses</strong>, renovando-se automaticamente por iguais períodos, salvo comunicação escrita de não renovação com 30 dias de antecedência.</p><h3>Cláusula 10 — Rescisão</h3><ol><li>Qualquer das partes poderá rescindir com justa causa, mediante notificação escrita com 30 dias de antecedência.</li><li>A rescisão antecipada sem justa causa obriga a parte incumpridora ao pagamento de indemnização a acordar, com base nas comissões médias dos últimos 3 meses.</li><li>Considera-se justa causa: incumprimento grave, violação de confidencialidade, uso indevido da marca ou concorrência desleal.</li></ol><h3>Cláusula 11 — Disposições Finais</h3><ol><li>Este contrato entra em vigor na data da assinatura por ambas as partes.</li><li>Qualquer alteração deverá ser formalizada em adenda escrita e assinada por ambas as partes.</li><li>Fica eleito o foro da comarca de <strong>Luanda</strong> para resolução de eventuais litígios.</li></ol><h3>Cláusula 12 — Aceitação</h3><p>E, por estarem justas e acordadas, as partes assinam o presente contrato em <strong>02 (duas) vias</strong>.</p><p>Luanda, aos ${blank(40)} dias do mês de ${blank(100)} de ${blank(60)}.</p><div class="sign-wrap"><div class="sign-block"><img src="${IMG_ASSINATURA}" style="width:180px;"/><p style="margin:0;font-size:9px;color:#888;">VRL IDENTIDADE, LDA</p></div><div class="sign-block"><div class="sign-line"></div><p><strong>Nome do Parceiro</strong></p><p>Cargo do Parceiro</p><p>Empresa do Parceiro</p></div></div>`);
+  page(wrap,`<h3>Cláusula 6 — Período de Demonstração ao Cliente Final</h3><p>Cada cliente final pode beneficiar de um período de demonstração gratuita do sistema EDUALL de <strong>15 a 30 dias</strong>, findo o qual deverá formalizar o contrato de licença ou cessar a utilização.</p><h3>Cláusula 7 — Propriedade Intelectual e Uso da Marca</h3><ol><li>O sistema EDUALL e toda a sua propriedade intelectual pertencem exclusivamente à <strong>VRL IDENTIDADE</strong>.</li><li>O <strong>PARCEIRO</strong> fica autorizado a utilizar a marca EDUALL nas suas ações comerciais, respeitando as diretrizes de identidade visual.</li><li>Finda a parceria, o <strong>PARCEIRO</strong> obriga-se a cessar imediatamente o uso de qualquer marca ou material da <strong>VRL</strong>.</li></ol><h3>Cláusula 8 — Confidencialidade</h3><p>Ambas as partes comprometem-se a manter sigilo sobre todas as informações obtidas, durante a vigência e por <strong>2 (dois) anos</strong> após o término.</p><h3>Cláusula 9 — Vigência e Renovação</h3><p>O presente contrato entra em vigor na data da sua assinatura e tem duração de ${durTxt}, renovando-se automaticamente por iguais períodos, salvo comunicação escrita de não renovação com 30 dias de antecedência.</p><h3>Cláusula 10 — Rescisão</h3><ol><li>Qualquer das partes poderá rescindir com justa causa, mediante notificação escrita com 30 dias de antecedência.</li><li>A rescisão antecipada sem justa causa obriga a parte incumpridora ao pagamento de indemnização a acordar, com base nas comissões médias dos últimos 3 meses.</li><li>Considera-se justa causa: incumprimento grave, violação de confidencialidade, uso indevido da marca ou concorrência desleal.</li></ol><h3>Cláusula 11 — Disposições Finais</h3><ol><li>Este contrato entra em vigor na data da assinatura por ambas as partes.</li><li>Qualquer alteração deverá ser formalizada em adenda escrita e assinada por ambas as partes.</li><li>Fica eleito o foro da comarca de <strong>Luanda</strong> para resolução de eventuais litígios.</li></ol><h3>Cláusula 12 — Aceitação</h3><p>E, por estarem justas e acordadas, as partes assinam o presente contrato em <strong>02 (duas) vias</strong>.</p><p>${dataLinha}</p><div class="sign-wrap"><div class="sign-block"><img src="${IMG_ASSINATURA}" style="width:180px;"/><p style="margin:0;font-size:9px;color:#888;">VRL IDENTIDADE, LDA</p></div><div class="sign-block"><div class="sign-line"></div><p><strong>${pNameTxt}</strong></p><p>${pCargoTxt}</p><p>${pDocTxt}</p></div></div>`);
 }
 
 // ── CARDS / RFID CONTRACT ──
@@ -2118,7 +2273,7 @@ function getDefaultFilename(ext){
       const tipo=d.type==='client'?'Contrato_Implementacao':'Contrato_Parceria';
       const name=d.type==='client'
         ? (d.clientName||'').replace(/\s+/g,'_')
-        : (d.partnerType==='reseller'?'Reseller':d.partnerType==='referral'?'Referral':'Expert');
+        : ((d.partnerName||'').replace(/\s+/g,'_')||(d.partnerType==='reseller'?'Reseller':d.partnerType==='referral'?'Referral':'Expert'));
       fname=`EDUALL_${tipo}_${name}`;
     }
   } else if(_lastDocType==='letter'){
@@ -2168,7 +2323,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     if(e.key==='Enter'){e.preventDefault();confirmExport();}
   });
   var hoje=new Date(),meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  [['t_dia','t_mes','t_ano'],['f_dia','f_mes','f_ano'],['l_dia','l_mes','l_ano'],['p_dia','p_mes','p_ano'],['pp_dia','pp_mes','pp_ano']].forEach(function(ids){
+  [['t_dia','t_mes','t_ano'],['f_dia','f_mes','f_ano'],['f_pdia','f_pmes','f_pano'],['l_dia','l_mes','l_ano'],['p_dia','p_mes','p_ano'],['pp_dia','pp_mes','pp_ano']].forEach(function(ids){
     var diaEl=document.getElementById(ids[0]),mesEl=document.getElementById(ids[1]),anoEl=document.getElementById(ids[2]);
     if(diaEl) diaEl.value=String(hoje.getDate()).padStart(2,'0');
     if(mesEl) mesEl.value=meses[hoje.getMonth()];
@@ -2247,16 +2402,59 @@ function buildClientDOCX(d,h){
   return[new Paragraph({children:[new ImageRun({data:imgCapa,transformation:{width:595,height:841}})],spacing:{after:0}}),new Paragraph({children:[new PageBreak()]}),pageHeader(imgInicio),new Paragraph({children:[new TextRun({text:'Sumário',bold:true,size:36,font:'Montserrat'})],alignment:AlignmentType.LEFT,spacing:{after:300}}),...['Cláusula 1 — Objeto','Cláusula 2 — Escopo dos Serviços','Cláusula 3 — Obrigações da Fornecedora','Cláusula 4 — Obrigações da Cliente','Cláusula 5 — Prazos de Execução','Cláusula 6 — Condições Financeiras','Cláusula 7 — Propriedade Intelectual','Cláusula 8 — Confidencialidade','Cláusula 9 — Garantia e Suporte','Cláusula 10 — Tratamento e Titularidade dos Dados','Cláusula 11 — Rescisão e Saída do Contrato','Cláusula 12 — Reajuste e Atualização de Valores','Cláusula 13 — Cláusula Penal','Cláusula 14 — Vigência e Renovação','Cláusula 15 — Vencimento Antecipado das Obrigações','Cláusula 16 — Suspensão e Bloqueio de Acesso por Inadimplência','Cláusula 17 — Limitação de Responsabilidade','Cláusula 18 — Cessão e Insolvência','Cláusula 19 — Não Concorrência e Captação de Colaboradores','Cláusula 20 — Força Maior e Tolerância','Cláusula 21 — Disposições Finais','Cláusula 22 — Aceitação'].map(t=>bullet(t)),pageFooter(imgRodape),new Paragraph({children:[new PageBreak()]}),pageHeader(imgInicio),body('Entre as partes:'),body(`VRL IDENTIDADE, pessoa coletiva com NIF: 5001512323, com sede em Luanda, Centralidade do Kilamba, doravante designada FORNECEDORA;`),body('e'),body(`${d.clientName.toUpperCase()}, pessoa coletiva com NIF: ${d.clientNIF}, com sede em ${d.clientSede}, doravante designada CLIENTE.`),body('As partes celebram o presente Contrato de Implementação do Sistema EDUALL, regido pelas cláusulas seguintes:'),br(),heading('CLÁUSULA 1 — OBJETO'),body('O presente contrato tem por objeto a implementação, instalação, configuração e disponibilização do sistema EDUALL – Sistema de Gestão Escolar e Universitário, incluindo formação, suporte técnico e serviços correlatos.'),heading('CLÁUSULA 2 — ESCOPO DOS SERVIÇOS'),bullet('Instalação e configuração do sistema em ambiente indicado pela CLIENTE.'),bullet('Customização inicial do sistema conforme necessidades previamente acordadas.'),bullet(`Formação inicial dos utilizadores designados pela CLIENTE, no limite de ${d.formHoras} (${numPorExtenso(d.formHoras)}) horas, distribuídas em até ${d.formSessoes} (${numPorExtenso(d.formSessoes)}) sessões e abrangendo até ${d.formUsers} (${numPorExtenso(d.formUsers)}) utilizadores; a formação adicional fica sujeita a orçamento à parte.`),bullet('Acompanhamento técnico durante o período de implementação.'),bullet(`Suporte técnico por um período de ${d.suporte} (${numPorExtenso(d.suporte)}) meses após a entrada em produção.`),bullet(`Manutenção e suporte contínuo do sistema, pelo valor anual de Kz ${d.valorManut}, incluindo atualizações, correções e suporte técnico.`),heading('CLÁUSULA 3 — OBRIGAÇÕES DA FORNECEDORA'),bullet('Disponibilizar o sistema EDUALL conforme o escopo contratado na Cláusula 2.'),bullet('Garantir a correta instalação, configuração e pleno funcionamento do sistema.'),bullet('Fornecer formação adequada aos utilizadores da CLIENTE, nos limites previstos na Cláusula 2.'),bullet('Prestar suporte técnico e atualizações nos níveis de serviço acordados (Cláusula 9).'),bullet('Manter absoluto sigilo sobre todas as informações da CLIENTE a que tiver acesso.'),bullet('Disponibilizar relatórios periódicos de acompanhamento da implementação.'),pageFooter(imgRodape),new Paragraph({children:[new PageBreak()]}),pageHeader(imgInicio),heading('CLÁUSULA 4 — OBRIGAÇÕES DA CLIENTE'),bullet('Disponibilizar infraestrutura adequada (internet, computadores e dispositivos compatíveis) para o funcionamento do sistema.'),bullet(`Nomear ${d.clientResp ? d.clientResp + ' como responsável pelo acompanhamento do projeto e interlocução junto da FORNECEDORA.' : 'representantes responsáveis pelo acompanhamento do projeto e interlocução junto da FORNECEDORA.'}`),bullet('Cumprir pontualmente os pagamentos nos prazos e condições estabelecidos na Cláusula 6.'),bullet('Utilizar o sistema exclusivamente para fins institucionais e dentro dos limites da licença concedida.'),bullet('Não contratar, adquirir ou utilizar, em paralelo e durante a vigência do contrato, sistemas concorrentes ao EDUALL.'),bullet('Comunicar à FORNECEDORA, por escrito, qualquer alteração de dados, representantes ou contactos relevantes para a execução do contrato.'),heading('CLÁUSULA 5 — PRAZOS DE EXECUÇÃO'),body(`O prazo para a conclusão da implementação será de até ${d.prazo} (${numPorExtenso(d.prazo)}) dias úteis, contados a partir da data de assinatura do presente contrato e da confirmação do pagamento inicial.`),heading('CLÁUSULA 6 — CONDIÇÕES FINANCEIRAS'),...clausula6Texto(d,'txt').map(function(t,i){return body(`${i+1}. ${t}`);}),heading('CLÁUSULA 7 — PROPRIEDADE INTELECTUAL'),bullet('O sistema EDUALL é de propriedade exclusiva da FORNECEDORA e/ou dos seus parceiros tecnológicos.'),bullet('A CLIENTE adquire o direito de uso não exclusivo, intransferível e limitado do sistema.'),bullet('É vedada à CLIENTE a reprodução, cópia, modificação ou engenharia reversa do sistema.'),bullet('É vedado à CLIENTE vender, ceder, alugar, sublicenciar ou disponibilizar o sistema ou as credenciais de acesso a terceiros, sob pena de rescisão imediata e pagamento de indemnização.'),heading('CLÁUSULA 8 — CONFIDENCIALIDADE'),body('A CLIENTE e a FORNECEDORA comprometem-se a manter em absoluto sigilo todas as informações técnicas, comerciais e estratégicas obtidas durante a vigência do contrato, obrigação que se mantém por 3 (três) anos após o termo do presente contrato.'),pageFooter(imgRodape),new Paragraph({children:[new PageBreak()]}),pageHeader(imgInicio),heading('CLÁUSULA 9 — GARANTIA E SUPORTE'),bullet('A FORNECEDORA garante o pleno funcionamento do sistema durante o período contratado.'),bullet(`O suporte técnico será prestado em horário comercial (segunda a sexta, das 08h00 às 17h00), com tempo de resposta de até ${d.slaCritico} (${numPorExtenso(d.slaCritico)}) horas úteis para incidentes críticos (indisponibilidade total do sistema) e de até ${d.slaNormal} (${numPorExtenso(d.slaNormal)}) horas úteis para pedidos normais, contados do registo do pedido no canal de suporte indicado pela FORNECEDORA; níveis adicionais podem ser contratados à parte.`),bullet('As atualizações e melhorias do sistema serão disponibilizadas pela FORNECEDORA conforme a sua política interna.'),heading('CLÁUSULA 10 — TRATAMENTO E TITULARIDADE DOS DADOS'),body('1. Todos os dados e informações introduzidos pela CLIENTE no sistema EDUALL pertencem à CLIENTE, na sua qualidade de titular.'),body('2. A FORNECEDORA tratará exclusivamente os dados estritamente necessários à prestação dos serviços contratados, comprometendo-se a não os utilizar para quaisquer fins alheios, em conformidade com a legislação aplicável em matéria de proteção de dados.'),body('3. Em caso de rescisão, suspensão ou não renovação do presente contrato, o acesso da CLIENTE aos dados fica condicionado à regularização integral dos pagamentos devidos e ao pagamento do custo de exportação previsto na Cláusula 11.'),body('4. A CLIENTE autoriza a FORNECEDORA a manter cópias de segurança dos dados pelo prazo legal, exclusivamente para fins de recuperação e segurança.'),heading('CLÁUSULA 11 — RESCISÃO E SAÍDA DO CONTRATO'),body('O contrato poderá ser rescindido por qualquer das partes nos seguintes casos:'),bullet('Descumprimento de qualquer obrigação contratual não sanado no prazo de 15 (quinze) dias após notificação escrita da parte lesada.'),bullet('Inadimplência de qualquer das partes superior a 30 (trinta) dias.'),bullet('Utilização indevida do sistema ou violação das cláusulas de propriedade intelectual (Cláusula 7) e confidencialidade (Cláusula 8).'),body('Considera-se justa causa para rescisão pela CLIENTE: incumprimento grave e reiterado da FORNECEDORA não sanado em 30 (trinta) dias; indisponibilidade do sistema por mais de 5 (cinco) dias úteis consecutivos não imputável à CLIENTE; ou violação das obrigações de confidencialidade e de proteção de dados.'),body(`A rescisão antecipada, por iniciativa da CLIENTE, sem justa causa, obriga a CLIENTE ao pagamento integral de ${d.multaRescisao}% (${numPorExtenso(parseInt(d.multaRescisao))} por cento) do valor total pago pelo último pacote escolhido.`),body(`Caso a CLIENTE pretenda receber, na rescisão ou no término do contrato, os dados e informações registados no sistema, deverá formalizar o pedido por escrito e pagar à FORNECEDORA o valor de ${d.taxaExport}% (${numPorExtenso(parseInt(d.taxaExport))} por cento) do valor da última licença vigente, a título de custo de extração, organização e entrega dos dados, em suporte digital, no prazo de até 30 (trinta) dias após a receção do pedido e a confirmação do pagamento.`),body('A entrega dos dados só ocorrerá após a regularização de todas as obrigações pecuniárias da CLIENTE. Em caso de rescisão por justa causa imputável à FORNECEDORA, a exportação dos dados será realizada sem qualquer custo para a CLIENTE, nos termos da lei.'),body('Após a rescisão ou término, a CLIENTE obriga-se a cessar de imediato o uso do sistema, das credenciais e de qualquer material da FORNECEDORA.'),heading('CLÁUSULA 12 — REAJUSTE E ATUALIZAÇÃO DE VALORES'),body('1. Os valores da licença e da manutenção poderão ser reajustados anualmente, com base na variação do índice de preços oficial publicado pelas autoridades competentes, mediante comunicação escrita à CLIENTE com, pelo menos, 30 (trinta) dias de antecedência. Considera-se comunicação válida o envio por email para o endereço designado pela CLIENTE, com confirmação de leitura, ou a notificação no sistema EDUALL com registo de data.'),body('2. A alteração do plano contratado, o aumento do número de utilizadores ou a solicitação de funcionalidades adicionais implicam a celebração de adenda e o reajuste dos valores aplicáveis.'),body('3. A CLIENTE não poderá suspender ou reduzir unilateralmente os pagamentos alegando falta de comunicação sempre que a atualização tenha sido efetuada nos termos do número anterior.'),heading('CLÁUSULA 13 — CLÁUSULA PENAL'),body(`1. O atraso no pagamento das prestações devidas sujeita a CLIENTE à multa de ${d.multa}% sobre o valor em atraso, sem prejuízo da suspensão dos serviços e da aplicação das demais sanções previstas no presente contrato.`),body('2. A violação das obrigações de confidencialidade ou de propriedade intelectual sujeita a parte incumpridora ao pagamento de indemnização integral pelos danos causados, sem prejuízo de ação judicial.'),body('3. As multas e indemnizações previstas no presente contrato não impedem a parte lesada de exigir, em juízo, a reparação integral dos danos que excedam os valores fixados.'),heading('CLÁUSULA 14 — VIGÊNCIA E RENOVAÇÃO'),body('1. O presente contrato entra em vigor na data da sua assinatura e tem duração mínima de 12 (doze) meses, renovando-se automaticamente por iguais períodos sucessivos, salvo comunicação escrita de não renovação com, pelo menos, 60 (sessenta) dias de antecedência.'),body('2. A CLIENTE não poderá rescindir o presente contrato antes de decorrido o período mínimo de 12 (doze) meses, salvo nas hipóteses de justa causa legalmente previstas, sob pena das sanções previstas na Cláusula 11.'),body('3. O direito de uso do sistema limita-se ao período de vigência do presente contrato, extinguindo-se automaticamente no respectivo termo.'),heading('CLÁUSULA 15 — VENCIMENTO ANTECIPADO DAS OBRIGAÇÕES'),body('1. A falta de pagamento de qualquer prestação no seu vencimento confere à FORNECEDORA o direito de considerar vencidas e imediatamente exigíveis todas as prestações remanescentes da licença e da manutenção.'),body('2. O vencimento antecipado não dispensa a CLIENTE do pagamento das multas, juros de mora e demais encargos devidos.'),body('3. Sobre as quantias em atraso incidem juros de mora de 1% (um por cento) ao mês, sem prejuízo da multa prevista na Cláusula 6.'),heading('CLÁUSULA 16 — SUSPENSÃO E BLOQUEIO DE ACESSO POR INADIMPLÊNCIA'),body('1. Em caso de inadimplência superior a 15 (quinze) dias, a FORNECEDORA poderá suspender o acesso da CLIENTE ao sistema, total ou parcialmente, mediante notificação prévia por escrito.'),body('2. A suspensão não implica rescisão do contrato, nem libera a CLIENTE do pagamento das quantias devidas.'),body('3. A CLIENTE reconhece que a suspensão do acesso não lhe confere direito a qualquer indemnização, desconto ou reembolso.'),body('4. O restabelecimento do acesso fica condicionado à regularização integral dos pagamentos em atraso.'),heading('CLÁUSULA 17 — LIMITAÇÃO DE RESPONSABILIDADE'),body('1. A responsabilidade da FORNECEDORA, em qualquer hipótese, fica limitada ao valor efetivamente pago pela CLIENTE nos 12 (doze) meses anteriores à ocorrência do sinistro.'),body('2. A FORNECEDORA não será responsável por quaisquer danos indiretos, lucros cessantes, perda de dados ou de receita, ainda que tenha sido informada da possibilidade de tais danos.'),body('3. A CLIENTE é responsável por efetuar cópias de segurança (backups) regulares dos seus dados, não podendo imputar à FORNECEDORA a perda ou corrupção de dados resultante da sua omissão.'),body('4. A FORNECEDORA não responde por interrupções causadas por falhas de internet, energia ou por atos de terceiros.'),heading('CLÁUSULA 18 — CESSÃO E INSOLVÊNCIA'),body('1. O presente contrato não poderá ser cedido, transferido ou subcontratado pela CLIENTE, no todo ou em parte, sem o consentimento prévio e escrito da FORNECEDORA.'),body('2. Em caso de insolvência, falência, recuperação judicial ou extrajudicial da CLIENTE, o presente contrato considerar-se-á imediatamente resolvido, tornando-se todas as quantias devidas exigíveis de imediato.'),body('3. Em caso de cessão não autorizada, a FORNECEDORA poderá rescindir o contrato e exigir as indemnizações devidas.'),heading('CLÁUSULA 19 — NÃO CONCORRÊNCIA E CAPTAÇÃO DE COLABORADORES'),body('1. Durante a vigência e pelo período de 2 (dois) anos após o término do contrato, a CLIENTE não poderá utilizar o conhecimento técnico, as funcionalidades e o saber-fazer do EDUALL para desenvolver, direta ou indiretamente, qualquer sistema concorrente.'),body('2. Durante a vigência e por 12 (doze) meses após o término, a CLIENTE não poderá contratar, direta ou indiretamente, colaboradores da FORNECEDORA envolvidos na implementação e suporte do sistema, sem autorização escrita.'),body('3. A violação desta cláusula sujeita a CLIENTE ao pagamento de indemnização pelos danos causados, nos termos da Cláusula 13.'),heading('CLÁUSULA 20 — FORÇA MAIOR E TOLERÂNCIA'),body('1. Nenhuma das partes será responsável pelo incumprimento das obrigações decorrentes de factos de força maior, de caso fortuito ou de facto de terceiro, devidamente comprovados.'),body('2. A eventual tolerância de qualquer das partes quanto ao incumprimento de qualquer cláusula não constitui novação, alteração ou renúncia a direitos, podendo a parte lesada exercê-los a qualquer momento.'),heading('CLÁUSULA 21 — DISPOSIÇÕES FINAIS'),bullet('O presente contrato entra em vigor na data da sua assinatura por ambas as partes.'),bullet('Quaisquer alterações ou aditamentos ao presente contrato somente serão válidos se formalizados por escrito e assinados por ambas as partes.'),bullet('Fica eleito o foro da comarca de Luanda, com renúncia expressa a qualquer outro, para dirimir quaisquer litígios decorrentes do presente contrato.'),bullet('Caso a presente implementação inclua equipamentos ou periféricos (nomeadamente leitores RFID, terminais biométricos ou outros dispositivos), a propriedade, garantia, manutenção e o destino dos mesmos em caso de rescisão serão regulados em Anexo Técnico próprio, a celebrar e assinar por ambas as partes.'),heading('CLÁUSULA 22 — ACEITAÇÃO'),body('E, por estarem de acordo e justamente contratadas, as partes assinam o presente contrato em 02 (duas) vias de igual teor e forma.'),body(`Luanda, ${d.dia} de ${d.mes} de ${d.ano}.`),br(),br(),new Paragraph({children:[new TextRun({text:'_______________________          _______________________',font:'Montserrat',size:20})],alignment:AlignmentType.CENTER,spacing:{before:400,after:80}}),new Paragraph({children:[new TextRun({text:`Lumanisa Manuel          ${d.clientRep}`,bold:true,font:'Montserrat',size:20})],alignment:AlignmentType.CENTER,spacing:{after:40}}),new Paragraph({children:[new TextRun({text:`Diretor          ${d.clientCargo}`,font:'Montserrat',size:18,color:'666666'})],alignment:AlignmentType.CENTER,spacing:{after:40}}),new Paragraph({children:[new TextRun({text:`VRL IDENTIDADE          ${d.clientName}`,font:'Montserrat',size:18,color:'666666'})],alignment:AlignmentType.CENTER}),pageFooter(imgRodape)];
 }
 
+function partnerClause5DOCX(d,h){
+  const {heading,body}=h;
+  const pt=d.partnerType;
+  const R=partnerRemInfo(d);
+  const model=pt==='reseller'?'Reseller':pt==='referral'?'Referral':'Expert';
+  const rem=R.isFixed
+    ? `um valor fixo de Kz ${R.fixedFmt}, ${R.period}`
+    : `uma comissão de ${fmtPct(R.pct)}% sobre o valor de cada venda do sistema EDUALL`;
+  let itens=[];
+  if(pt==='reseller'){
+    itens=[
+      'O presente modelo está condicionado à angariação mínima de 3 (três) clientes finais pelo PARCEIRO, sendo este o requisito de ativação e manutenção do estatuto Reseller.',
+      R.isFixed?`O PARCEIRO terá direito a ${rem} por cada cliente angariado.`:`O PARCEIRO terá direito a ${rem}, de forma recorrente enquanto o contrato do cliente final com a VRL se mantiver ativo.`,
+      'O contrato com cada cliente final será sempre celebrado directamente entre esse cliente e a VRL.',
+      'O pagamento das comissões será efetuado até ao dia 10 do mês seguinte, mediante recibo ou fatura emitida pelo PARCEIRO.',
+      'Ao atingir 10 (dez) clientes activos, o PARCEIRO transita automaticamente para o estatuto Expert.'
+    ];
+  } else if(pt==='referral'){
+    itens=[
+      `O PARCEIRO terá direito a ${R.isFixed?`um valor fixo de Kz ${R.fixedFmt} ${R.period==='por mês'?'por mês':'por cada referência convertida'}`:`uma comissão de ${fmtPct(R.pct)}% sobre o valor de cada venda resultante de referência convertida`}.`,
+      'O pagamento será efetuado em 30 dias após a confirmação de adesão e do primeiro pagamento do cliente referenciado.',
+      'Ao atingir 5 (cinco) clientes convertidos acumulados, o PARCEIRO transita automaticamente para o estatuto Reseller.',
+      'Território ou sector exclusivo atribuído (Anexo I).'
+    ];
+  } else {
+    itens=[
+      `O PARCEIRO terá direito a ${rem}, acumulável com os incentivos por desempenho abaixo previstos.`,
+      'Bónus progressivos: 5 clientes → Kz 500.000,00; 10 clientes → Kz 1.200.000,00; 20 clientes → Kz 3.000.000,00. Cada bónus pago em 30 dias após verificação do marco.',
+      'Residual mensal de Kz 8.000,00 por cliente ativo durante 12 (doze) meses.',
+      'Após os 12 meses, comissão permanente de Kz 3.000,00 a Kz 4.000,00 por cliente ativo por mês, sem limite de duração.',
+      'Território ou sector exclusivo atribuído (Anexo I).'
+    ];
+  }
+  return [heading('CLÁUSULA 5 — MODELO DE COMISSIONAMENTO ('+model.toUpperCase()+')')].concat(itens.map(function(t){return body(t);}));
+}
+
 function buildPartnerDOCX(d,h){
   const{heading,body,bullet,br,pageHeader,pageFooter,imgCapa,imgInicio,imgRodape,AlignmentType,Paragraph,TextRun,ImageRun,PageBreak}=h;
   const pt=d.partnerType;
   const tipoLabel=pt==='reseller'?'Parceiro Reseller':pt==='referral'?'Parceiro Referral':'Parceiro Expert';
   const B=(n)=>'_'.repeat(n||20);
-  let cl5=[];
-  if(pt==='reseller'){cl5=[heading('CLÁUSULA 5 — MODELO DE COMISSIONAMENTO (RESELLER)'),body('1. Mínimo de 3 clientes finais para activação do estatuto Reseller.'),body('2. Comissão de 15% sobre o valor da licença por cada cliente activo, mensal e recorrente.'),body('3. A VRL emite fatura ao PARCEIRO pelo valor base; o PARCEIRO repercute ao cliente final o valor total (base + 15%).'),body('4. Pagamento das comissões até ao dia 10 do mês seguinte, mediante recibo ou fatura emitida pelo PARCEIRO.'),body('5. Ao atingir 10 clientes activos, transição automática para estatuto Expert.')];}
-  else if(pt==='referral'){cl5=[heading('CLÁUSULA 5 — MODELO DE COMISSIONAMENTO (REFERRAL)'),body('1. Pagamento único por referência convertida: pequena — Kz 80.000,00; média — Kz 200.000,00; grande — Kz 400.000,00.'),body('2. Pagamento em 30 dias após confirmação de adesão e primeiro pagamento do cliente referenciado.'),body('3. Ao atingir 5 clientes convertidos acumulados, transição automática para estatuto Reseller.')];}
-  else{cl5=[heading('CLÁUSULA 5 — MODELO DE COMISSIONAMENTO (EXPERT)'),body('1. Bónus progressivos: 5 clientes → Kz 500.000,00; 10 clientes → Kz 1.200.000,00; 20 clientes → Kz 3.000.000,00.'),body('2. Residual mensal de Kz 8.000,00 por cliente activo durante 12 meses.'),body('3. Após os 12 meses, comissão permanente de Kz 3.000,00 a Kz 4.000,00 por cliente activo por mês, sem limite de duração.')];}
-  return[new Paragraph({children:[new ImageRun({data:imgCapa,transformation:{width:595,height:841}})],spacing:{after:0}}),new Paragraph({children:[new PageBreak()]}),pageHeader(imgInicio),new Paragraph({children:[new TextRun({text:'Sumário',bold:true,size:36,font:'Montserrat'})],alignment:AlignmentType.LEFT,spacing:{after:300}}),...['Cláusula 1 — Objeto e Modelo de Parceria','Cláusula 2 — Identificação das Partes','Cláusula 3 — Obrigações da VRL Identidade','Cláusula 4 — Obrigações do Parceiro','Cláusula 5 — Modelo de Comissionamento','Cláusula 6 — Período de Demonstração ao Cliente Final','Cláusula 7 — Propriedade Intelectual e Uso da Marca','Cláusula 8 — Confidencialidade','Cláusula 9 — Vigência e Renovação','Cláusula 10 — Rescisão','Cláusula 11 — Disposições Finais','Cláusula 12 — Aceitação'].map(t=>bullet(t)),pageFooter(imgRodape),new Paragraph({children:[new PageBreak()]}),pageHeader(imgInicio),body('Entre as partes:'),body('VRL IDENTIDADE, NIF: 5001512323, Luanda, Centralidade do Kilamba, doravante VRL;'),body('e'),body(`${B(30)}, NIF: ${B(12)}, sede em ${B(20)}, representada por ${B(25)}, na qualidade de ${B(20)}, doravante PARCEIRO.`),body(`As partes celebram o presente Contrato de Parceria Comercial — Programa EDUALL (${tipoLabel}):`),br(),heading('CLÁUSULA 1 — OBJETO E MODELO DE PARCERIA'),body(`O presente contrato estabelece os termos e condições da parceria comercial entre a VRL e o PARCEIRO, no modelo ${tipoLabel}, para comercialização, referenciação ou distribuição do sistema EDUALL.`),heading('CLÁUSULA 2 — IDENTIFICAÇÃO DAS PARTES'),body(`O PARCEIRO é representado por ${B(25)}, na qualidade de ${B(20)}, com plenos poderes para os atos inerentes a esta parceria.`),heading('CLÁUSULA 3 — OBRIGAÇÕES DA VRL IDENTIDADE'),bullet('Disponibilizar materiais de vendas, formação e documentação técnica do sistema EDUALL.'),bullet('Prestar suporte técnico e comercial necessário para a atividade do PARCEIRO.'),bullet('Processar as comissões devidas nos termos acordados.'),bullet('Manter o PARCEIRO informado sobre atualizações com antecedência mínima de 30 dias.'),heading('CLÁUSULA 4 — OBRIGAÇÕES DO PARCEIRO'),bullet('Promover o sistema EDUALL de forma ética e alinhada com os valores da VRL.'),bullet('Não efetuar promessas sobre o produto sem autorização prévia da VRL.'),bullet('Manter confidencialidade sobre preços, margens e condições comerciais da VRL.'),bullet('Reportar mensalmente as atividades comerciais e pipeline de potenciais clientes.'),...cl5,pageFooter(imgRodape),new Paragraph({children:[new PageBreak()]}),pageHeader(imgInicio),heading('CLÁUSULA 6 — PERÍODO DE DEMONSTRAÇÃO AO CLIENTE FINAL'),body('Cada cliente final pode beneficiar de demonstração gratuita do sistema EDUALL de 15 a 30 dias.'),heading('CLÁUSULA 7 — PROPRIEDADE INTELECTUAL E USO DA MARCA'),bullet('O sistema EDUALL e toda a sua propriedade intelectual pertencem exclusivamente à VRL IDENTIDADE.'),bullet('O PARCEIRO fica autorizado a utilizar a marca EDUALL nas suas ações comerciais.'),bullet('Finda a parceria, o PARCEIRO obriga-se a cessar imediatamente o uso de qualquer marca da VRL.'),heading('CLÁUSULA 8 — CONFIDENCIALIDADE'),body('Ambas as partes comprometem-se a manter sigilo sobre todas as informações obtidas, durante a vigência e por 2 anos após o término.'),heading('CLÁUSULA 9 — VIGÊNCIA E RENOVAÇÃO'),body(`O presente contrato tem duração de ${B(8)} meses, renovando-se automaticamente por iguais períodos, salvo comunicação de não renovação com 30 dias de antecedência.`),heading('CLÁUSULA 10 — RESCISÃO'),bullet('Qualquer das partes poderá rescindir com justa causa, com notificação escrita com 30 dias de antecedência.'),bullet('A rescisão antecipada sem justa causa implica indemnização com base nas comissões médias dos últimos 3 meses.'),heading('CLÁUSULA 11 — DISPOSIÇÕES FINAIS'),bullet('Este contrato entra em vigor na data da assinatura por ambas as partes.'),bullet('Qualquer alteração deverá ser formalizada em adenda escrita e assinada por ambas as partes.'),bullet('Fica eleito o foro da comarca de Luanda para resolução de eventuais litígios.'),heading('CLÁUSULA 12 — ACEITAÇÃO'),body(`Luanda, aos ${B(5)} dias do mês de ${B(12)} de ${B(6)}.`),br(),br(),new Paragraph({children:[new TextRun({text:'_______________________          _______________________',font:'Montserrat',size:20})],alignment:AlignmentType.CENTER,spacing:{before:600,after:80}}),new Paragraph({children:[new TextRun({text:'Lumanisa Manuel',bold:true,font:'Montserrat',size:20}),new TextRun({text:'          ',font:'Montserrat',size:20}),new TextRun({text:'Nome do Parceiro',bold:true,font:'Montserrat',size:20,color:'aaaaaa'})],alignment:AlignmentType.CENTER,spacing:{after:40}}),new Paragraph({children:[new TextRun({text:'Diretor',font:'Montserrat',size:18,color:'666666'}),new TextRun({text:'          ',font:'Montserrat',size:18}),new TextRun({text:'Cargo do Parceiro',font:'Montserrat',size:18,color:'aaaaaa'})],alignment:AlignmentType.CENTER,spacing:{after:40}}),new Paragraph({children:[new TextRun({text:'VRL IDENTIDADE',font:'Montserrat',size:18,color:'666666'}),new TextRun({text:'          ',font:'Montserrat',size:18}),new TextRun({text:'Empresa do Parceiro',font:'Montserrat',size:18,color:'aaaaaa'})],alignment:AlignmentType.CENTER}),pageFooter(imgRodape)];
+  const pName=d.partnerName?d.partnerName:B(30);
+  const pNif=d.partnerNIF?d.partnerNIF:B(12);
+  const pSede=d.partnerSede?d.partnerSede:B(20);
+  const pRep=d.partnerRep?d.partnerRep:B(25);
+  const pCargo=d.partnerCargo?d.partnerCargo:B(20);
+  const durTx=d.duracao?`${d.duracao} (${numPorExtenso(d.duracao)})`:'______';
+  const dataTx=(d.dia||d.mes||d.ano)?`Luanda, aos ${d.dia||'____'} dias do mês de ${d.mes||'__________'} de ${d.ano||'______'}.`:'Luanda, aos ____ dias do mês de __________ de ______.';
+  const signName=d.partnerName||'Nome do Parceiro';
+  const signCargo=d.partnerCargo||'Cargo do Parceiro';
+  const signDoc=d.partnerNIF?('NIF: '+d.partnerNIF):'Empresa do Parceiro';
+  const cl5=partnerClause5DOCX(d,h);
+  return[new Paragraph({children:[new ImageRun({data:imgCapa,transformation:{width:595,height:841}})],spacing:{after:0}}),new Paragraph({children:[new PageBreak()]}),pageHeader(imgInicio),new Paragraph({children:[new TextRun({text:'Sumário',bold:true,size:36,font:'Montserrat'})],alignment:AlignmentType.LEFT,spacing:{after:300}}),...['Cláusula 1 — Objeto e Modelo de Parceria','Cláusula 2 — Identificação das Partes','Cláusula 3 — Obrigações da VRL Identidade','Cláusula 4 — Obrigações do Parceiro','Cláusula 5 — Modelo de Comissionamento','Cláusula 6 — Período de Demonstração ao Cliente Final','Cláusula 7 — Propriedade Intelectual e Uso da Marca','Cláusula 8 — Confidencialidade','Cláusula 9 — Vigência e Renovação','Cláusula 10 — Rescisão','Cláusula 11 — Disposições Finais','Cláusula 12 — Aceitação'].map(t=>bullet(t)),pageFooter(imgRodape),new Paragraph({children:[new PageBreak()]}),pageHeader(imgInicio),body('Entre as partes:'),body('VRL IDENTIDADE, NIF: 5001512323, Luanda, Centralidade do Kilamba, doravante VRL;'),body('e'),body(`${pName}, NIF: ${pNif}, sede em ${pSede}, representada por ${pRep}, na qualidade de ${pCargo}, doravante PARCEIRO.`),body(`As partes celebram o presente Contrato de Parceria Comercial — Programa EDUALL (${tipoLabel}):`),br(),heading('CLÁUSULA 1 — OBJETO E MODELO DE PARCERIA'),body(`O presente contrato estabelece os termos e condições da parceria comercial entre a VRL e o PARCEIRO, no modelo ${tipoLabel}, para comercialização, referenciação ou distribuição do sistema EDUALL.`),heading('CLÁUSULA 2 — IDENTIFICAÇÃO DAS PARTES'),body(`O PARCEIRO é representado por ${pRep}, na qualidade de ${pCargo}, com plenos poderes para os atos inerentes a esta parceria.`),heading('CLÁUSULA 3 — OBRIGAÇÕES DA VRL IDENTIDADE'),bullet('Disponibilizar materiais de vendas, formação e documentação técnica do sistema EDUALL.'),bullet('Prestar suporte técnico e comercial necessário para a atividade do PARCEIRO.'),bullet('Processar as comissões devidas nos termos acordados.'),bullet('Manter o PARCEIRO informado sobre atualizações com antecedência mínima de 30 dias.'),heading('CLÁUSULA 4 — OBRIGAÇÕES DO PARCEIRO'),bullet('Promover o sistema EDUALL de forma ética e alinhada com os valores da VRL.'),bullet('Não efetuar promessas sobre o produto sem autorização prévia da VRL.'),bullet('Manter confidencialidade sobre preços, margens e condições comerciais da VRL.'),bullet('Reportar mensalmente as atividades comerciais e pipeline de potenciais clientes.'),...cl5,pageFooter(imgRodape),new Paragraph({children:[new PageBreak()]}),pageHeader(imgInicio),heading('CLÁUSULA 6 — PERÍODO DE DEMONSTRAÇÃO AO CLIENTE FINAL'),body('Cada cliente final pode beneficiar de demonstração gratuita do sistema EDUALL de 15 a 30 dias.'),heading('CLÁUSULA 7 — PROPRIEDADE INTELECTUAL E USO DA MARCA'),bullet('O sistema EDUALL e toda a sua propriedade intelectual pertencem exclusivamente à VRL IDENTIDADE.'),bullet('O PARCEIRO fica autorizado a utilizar a marca EDUALL nas suas ações comerciais.'),bullet('Finda a parceria, o PARCEIRO obriga-se a cessar imediatamente o uso de qualquer marca da VRL.'),heading('CLÁUSULA 8 — CONFIDENCIALIDADE'),body('Ambas as partes comprometem-se a manter sigilo sobre todas as informações obtidas, durante a vigência e por 2 anos após o término.'),heading('CLÁUSULA 9 — VIGÊNCIA E RENOVAÇÃO'),body(`O presente contrato tem duração de ${durTx} meses, renovando-se automaticamente por iguais períodos, salvo comunicação de não renovação com 30 dias de antecedência.`),heading('CLÁUSULA 10 — RESCISÃO'),bullet('Qualquer das partes poderá rescindir com justa causa, com notificação escrita com 30 dias de antecedência.'),bullet('A rescisão antecipada sem justa causa implica indemnização com base nas comissões médias dos últimos 3 meses.'),heading('CLÁUSULA 11 — DISPOSIÇÕES FINAIS'),bullet('Este contrato entra em vigor na data da assinatura por ambas as partes.'),bullet('Qualquer alteração deverá ser formalizada em adenda escrita e assinada por ambas as partes.'),bullet('Fica eleito o foro da comarca de Luanda para resolução de eventuais litígios.'),heading('CLÁUSULA 12 — ACEITAÇÃO'),body(dataTx),br(),br(),new Paragraph({children:[new TextRun({text:'_______________________          _______________________',font:'Montserrat',size:20})],alignment:AlignmentType.CENTER,spacing:{before:600,after:80}}),new Paragraph({children:[new TextRun({text:'Lumanisa Manuel',bold:true,font:'Montserrat',size:20}),new TextRun({text:'          ',font:'Montserrat',size:20}),new TextRun({text:signName,bold:true,font:'Montserrat',size:20,color:'555555'})],alignment:AlignmentType.CENTER,spacing:{after:40}}),new Paragraph({children:[new TextRun({text:'Diretor',font:'Montserrat',size:18,color:'666666'}),new TextRun({text:'          ',font:'Montserrat',size:18}),new TextRun({text:signCargo,font:'Montserrat',size:18,color:'666666'})],alignment:AlignmentType.CENTER,spacing:{after:40}}),new Paragraph({children:[new TextRun({text:'VRL IDENTIDADE',font:'Montserrat',size:18,color:'666666'}),new TextRun({text:'          ',font:'Montserrat',size:18}),new TextRun({text:signDoc,font:'Montserrat',size:18,color:'666666'})],alignment:AlignmentType.CENTER}),pageFooter(imgRodape)];
 }
 
 function buildTermDOCX(d,h){
@@ -2642,7 +2840,7 @@ function historyTitle(entry){
   const d = entry.data||{};
   switch(entry.tipo){
     case 'contract': 
-      if(d.type==='partner') return 'Contrato de Parceria — '+(d.partnerType==='reseller'?'Reseller':d.partnerType==='referral'?'Referral':'Expert');
+      if(d.type==='partner') return 'Contrato de Parceria — '+(d.partnerName||(d.partnerType==='reseller'?'Reseller':d.partnerType==='referral'?'Referral':'Expert'));
       if(d.type==='cards') return 'Contrato de Cartões (RFID) — '+(d.clientName||'(sem nome)');
       return 'Contrato de Implementação — '+(d.clientName||'(sem nome)');
     case 'letter':   return 'Carta de Apresentação — '+(d.escola||'(sem instituição)');
@@ -2739,7 +2937,7 @@ function restoreFromHistory(id){
     // contract
     if(d.type==='partner'){
       setContractType('partner');
-      document.getElementById('f_partnerType').value = d.partnerType||'reseller';
+      restorePartnerModal(d);
       generateContract();
     } else if(d.type==='cards'){
       setContractType('cards');

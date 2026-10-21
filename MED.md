@@ -78,6 +78,15 @@ Todas as 5 capas (Cliente, Parceiro, Carta, Termo, Proposta Comercial, Proposta 
 - `getDefaultFilename()`, `historyTitle()`, `editContract()` e `restoreFromHistory()` atualizados para o tipo `cards` (com `restoreCardsModal(d)`)
 - Adicionados botão no hero, card na grelha de documentos e entrada no painel “Documentos EDUALL”
 
+### 11. Contrato de Parceria — dados do parceiro e remuneração configurável
+- Adicionados ao formulário `#formPartner` os campos: **Nome do Parceiro**, **NIF (opcional)**, **Sede/Localidade (opcional)**, **Nome do Representante**, **Cargo do Representante**, **Duração da Parceria (meses)** e **Data da Assinatura** (dia/mês/ano)
+- Adicionado selector **Tipo de Remuneração**: **Percentagem (%)** ou **Valor fixo (Kz)**, com campo de valor e periodicidade (`por cliente angariado`, `por mês`, `pagamento único`)
+- `aplicarModeloParceiro()` aplica valores padrão por modelo (Reseller 15%, Referral 200.000 Kz, Expert 500.000 Kz) e `atualizarRemuneracaoParceiro()` alterna os campos e mostra um resumo em tempo real
+- `renderPartnerPages()` passou a preencher nome, NIF, sede, representante e cargo no contrato, usando espaços em branco quando os campos estão vazios; a Cláusula 5 é gerada dinamicamente por `partnerClause5HTML(d)` com a remuneração escolhida; Cláusula 9 usa a duração indicada e o bloco de assinaturas mostra os dados do parceiro
+- `buildPartnerDOCX()` e `partnerClause5DOCX(d,h)` replicam a mesma lógica no DOCX
+- `restorePartnerModal(d)`, `editContract()`, `restoreFromHistory()`, `historyTitle()` e `getDefaultFilename()` actualizados para guardar/restaurar os novos campos e usar o nome do parceiro no título e no nome do ficheiro
+- Campos Dia/Mês/Ano do parceiro (`f_pdia`, `f_pmes`, `f_pano`) incluídos no preenchimento automático com a data de hoje
+
 ---
 
 ## Arquitectura
