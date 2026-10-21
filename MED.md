@@ -87,6 +87,22 @@ Todas as 5 capas (Cliente, Parceiro, Carta, Termo, Proposta Comercial, Proposta 
 - `restorePartnerModal(d)`, `editContract()`, `restoreFromHistory()`, `historyTitle()` e `getDefaultFilename()` actualizados para guardar/restaurar os novos campos e usar o nome do parceiro no título e no nome do ficheiro
 - Campos Dia/Mês/Ano do parceiro (`f_pdia`, `f_pmes`, `f_pano`) incluídos no preenchimento automático com a data de hoje
 
+### 12. Contrato de Parceria para pessoa singular
+- Formulário ajustado para pessoas singulares: **Nome Completo do Parceiro**, **NIF (opcional)**, **Residência / Endereço (opcional)** e **Duração**; removidos os campos de representante e cargo
+- Texto das partes passou a usar **“residente em”** em vez de **“sede em / representada por / na qualidade de”**
+- Cláusula 2 identifica o parceiro pelo nome, NIF e residência, actuando em nome próprio
+- Bloco de assinaturas mostra apenas nome e NIF do parceiro
+- `buildPartnerDOCX()` actualizado com a mesma estrutura
+- A página **“Programa de Parceiros — Modelos Disponíveis”** deixa de ser incluída quando o contrato é por **percentagem**, evitando contradizer a remuneração acordada; o Sumário é ajustado automaticamente (páginas e entrada removida)
+
+### 13. Exportação PDF mais rápida
+- Escala de renderização reduzida de `2` para `1,5–1,6` (~150 dpi), mantendo o texto nítido
+- Imagens convertidas para **JPEG (qualidade 0,92)** em vez de PNG — PDF final bastante mais leve
+- Cabeçalho e rodapé pré-carregados uma só vez antes de renderizar as páginas
+- Progresso visível no botão: **“A gerar PDF… 2/6”** e **“A descarregar…”**
+- Inserção no PDF com compressão `FAST`
+
+
 ---
 
 ## Arquitectura
